@@ -422,6 +422,574 @@ Before marking UI as complete:
 - [ ] Form errors are announced
 - [ ] Lighthouse accessibility score > 90
 
+## 🧪 TDD (Test-Driven Development) - MANDATORY
+
+> **TDD is not optional for UI components with logic. Write tests first, then build the UI.**
+
+### What is TDD for Frontend?
+
+TDD (Test-Driven Development) for frontend means writing tests **before** building UI components. This ensures your components are testable, focused on user behavior, and meet requirements from the start.
+
+### The Red-Green-Refactor Cycle (UI Edition)
+
+TDD follows a simple cycle adapted for React components:
+
+1. **🔴 RED**: Write a failing test
+   - Write a test for the UI behavior you want
+   - Run the test → It should FAIL (component doesn't exist yet)
+   - Focus on **user behavior**, not implementation details
+
+2. **🟢 GREEN**: Make the test pass
+   - Build the **minimum** UI component to pass the test
+   - Don't worry about styling perfection, just make it work
+   - Run the test → It should PASS
+
+3. **🔵 REFACTOR**: Improve the component
+   - Clean up component code
+   - Improve styling, accessibility, performance
+   - Extract reusable components
+   - Run the test → It should still PASS
+
+4. **👁️ VISUAL VERIFY**: Check in browser
+   - Open component in dev server
+   - Verify visual appearance
+   - Test responsive behavior
+   - Check accessibility
+
+**Repeat** this cycle for each piece of UI functionality.
+
+### When to Use TDD
+
+✅ **MANDATORY for**:
+- Form components with validation
+- Components with business logic
+- Interactive components (modals, filters, pagination)
+- Components with API integration
+- Custom hooks with logic
+
+✅ **RECOMMENDED for**:
+- List components with state
+- Components with complex conditional rendering
+- Components with side effects
+- Integration flows (multi-step forms)
+
+⚠️ **OPTIONAL for**:
+- Simple presentational components (cards, badges)
+- Pure styling components
+- Static content components
+
+### TDD Workflow Integration (Frontend)
+
+When implementing UI, follow this TDD workflow:
+
+**Step 1: Plan with User Behavior Tests**
+```
+Task: Implement "Club Budget Edit Modal" (edit club budget, validate RN-2)
+
+TDD Plan (User Behavior):
+1. Test: User can open modal and see current budget
+2. Test: User can enter new budget value
+3. Test: User sees error if new budget < current salaries
+4. Test: User can successfully update valid budget
+5. Test: Modal closes after successful update
+```
+
+**Step 2: Implement with Red-Green-Refactor**
+
+```typescript
+// RED: Write failing test first
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { EditBudgetModal } from './EditBudgetModal';
+
+describe('EditBudgetModal', () => {
+  test('user can open modal and see current budget', () => {
+    const club = { id: 1, name: 'FC Test', budget: 100000 };
+
+    render(<EditBudgetModal club={club} isOpen={true} onClose={jest.fn()} />);
+
+    // Assert user can see current budget
+    expect(screen.getByText(/current budget/i)).toBeInTheDocument();
+    expect(screen.getByDisplayValue('100000')).toBeInTheDocument();
+  });
+});
+
+// Run test: npm test -- EditBudgetModal
+// Expected: FAIL (component doesn't exist yet)
+
+// GREEN: Build minimum component to pass
+export function EditBudgetModal({ club, isOpen, onClose }: Props) {
+  return (
+    <Modal open={isOpen} onClose={onClose}>
+      <h2>Edit Budget</h2>
+      <p>Current budget: ${club.budget}</p>
+      <input type="number" defaultValue={club.budget} />
+    </Modal>
+  );
+}
+
+// Run test: npm test -- EditBudgetModal
+// Expected: PASS ✓
+
+// REFACTOR: Improve styling and structure
+export function EditBudgetModal({ club, isOpen, onClose }: Props) {
+  return (
+    <Modal open={isOpen} onClose={onClose} className="max-w-md">
+      <div className="p-6">
+        <h2 className="text-xl font-bold mb-4">Edit Budget</h2>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2">
+            Current budget: ${club.budget.toLocaleString()}
+          </label>
+          <input
+            type="number"
+            defaultValue={club.budget}
+            className="w-full px-3 py-2 border rounded"
+          />
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// Run test: npm test -- EditBudgetModal
+// Expected: STILL PASS ✓
+
+// VISUAL VERIFY: Check in browser
+// Open: http://localhost:3000/clubs/1
+// Click: Edit Budget button
+// Verify: Modal looks good, input has correct value
+```
+
+**Step 3: Continue with Next Behavior**
+
+```typescript
+// RED: Test validation behavior
+test('user sees error if new budget is less than current salaries', async () => {
+  const club = { id: 1, name: 'FC Test', budget: 100000, currentSalaries: 80000 };
+
+  render(<EditBudgetModal club={club} isOpen={true} onClose={jest.fn()} />);
+
+  const input = screen.getByLabelText(/new budget/i);
+  const submitButton = screen.getByRole('button', { name: /save/i });
+
+  // User enters budget less than current salaries
+  fireEvent.change(input, { target: { value: '50000' } });
+  fireEvent.click(submitButton);
+
+  // Assert error message appears
+  await waitFor(() => {
+    expect(screen.getByText(/budget cannot be less than current salaries/i)).toBeInTheDocument();
+  });
+});
+
+// Run: FAIL ❌ (validation not implemented yet)
+
+// GREEN: Implement validation
+// REFACTOR: Clean up
+// Run: PASS ✓
+```
+
+### TDD Examples for Common UI Patterns
+
+**Form Component with Validation**
+
+```typescript
+// RED: Test first
+describe('CreatePlayerForm', () => {
+  test('shows validation error for empty name', async () => {
+    render(<CreatePlayerForm onSubmit={jest.fn()} />);
+
+    const submitButton = screen.getByRole('button', { name: /create player/i });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText(/name is required/i)).toBeInTheDocument();
+    });
+  });
+
+  test('shows validation error for invalid salary', async () => {
+    render(<CreatePlayerForm onSubmit={jest.fn()} />);
+
+    const salaryInput = screen.getByLabelText(/salary/i);
+    fireEvent.change(salaryInput, { target: { value: '-1000' } });
+
+    const submitButton = screen.getByRole('button', { name: /create player/i });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText(/salary must be positive/i)).toBeInTheDocument();
+    });
+  });
+
+  test('submits form with valid data', async () => {
+    const onSubmit = jest.fn();
+    render(<CreatePlayerForm onSubmit={onSubmit} />);
+
+    fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'John Doe' } });
+    fireEvent.change(screen.getByLabelText(/salary/i), { target: { value: '50000' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /create player/i }));
+
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith({
+        name: 'John Doe',
+        salary: 50000,
+      });
+    });
+  });
+});
+
+// GREEN: Implement form with react-hook-form + zod
+// REFACTOR: Extract validation schema
+// VISUAL VERIFY: Check in browser
+```
+
+**List Component with Filtering**
+
+```typescript
+// RED: Test first
+describe('PlayersList', () => {
+  const mockPlayers = [
+    { id: 1, name: 'John Doe', salary: 50000, club: { name: 'FC Test' } },
+    { id: 2, name: 'Jane Smith', salary: 60000, club: null },
+  ];
+
+  test('displays all players initially', () => {
+    render(<PlayersList players={mockPlayers} />);
+
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.getByText('Jane Smith')).toBeInTheDocument();
+  });
+
+  test('filters players by name', () => {
+    render(<PlayersList players={mockPlayers} />);
+
+    const searchInput = screen.getByPlaceholderText(/search by name/i);
+    fireEvent.change(searchInput, { target: { value: 'John' } });
+
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.queryByText('Jane Smith')).not.toBeInTheDocument();
+  });
+
+  test('filters players without club', () => {
+    render(<PlayersList players={mockPlayers} />);
+
+    const filterSelect = screen.getByLabelText(/club status/i);
+    fireEvent.change(filterSelect, { target: { value: 'no-club' } });
+
+    expect(screen.queryByText('John Doe')).not.toBeInTheDocument();
+    expect(screen.getByText('Jane Smith')).toBeInTheDocument();
+  });
+});
+
+// GREEN: Implement with useState for filters
+// REFACTOR: Extract filter logic to custom hook
+// VISUAL VERIFY: Test filtering in browser
+```
+
+**API Integration Component**
+
+```typescript
+// RED: Test first (with MSW or mock)
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+
+const server = setupServer(
+  rest.get('/api/clubs/:id', (req, res, ctx) => {
+    return res(ctx.json({
+      id: 1,
+      name: 'FC Test',
+      budget: 100000,
+      players: [],
+    }));
+  })
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
+describe('ClubDetailPage', () => {
+  test('displays loading state while fetching club', () => {
+    render(<ClubDetailPage clubId={1} />);
+
+    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+  });
+
+  test('displays club data after successful fetch', async () => {
+    render(<ClubDetailPage clubId={1} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('FC Test')).toBeInTheDocument();
+      expect(screen.getByText(/budget.*100,000/i)).toBeInTheDocument();
+    });
+  });
+
+  test('displays error message on fetch failure', async () => {
+    server.use(
+      rest.get('/api/clubs/:id', (req, res, ctx) => {
+        return res(ctx.status(500), ctx.json({ message: 'Server error' }));
+      })
+    );
+
+    render(<ClubDetailPage clubId={1} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/error loading club/i)).toBeInTheDocument();
+    });
+  });
+});
+
+// GREEN: Implement with React Query
+// REFACTOR: Extract API client
+// VISUAL VERIFY: Test loading, success, and error states in browser
+```
+
+**Custom Hook with Logic**
+
+```typescript
+// RED: Test hook first
+import { renderHook, act } from '@testing-library/react';
+import { useBudgetValidation } from './useBudgetValidation';
+
+describe('useBudgetValidation', () => {
+  test('validates budget is sufficient', () => {
+    const { result } = renderHook(() => useBudgetValidation({
+      currentBudget: 100000,
+      currentSalaries: 80000,
+    }));
+
+    act(() => {
+      const isValid = result.current.validateNewBudget(90000);
+      expect(isValid).toBe(true);
+    });
+  });
+
+  test('rejects budget less than current salaries', () => {
+    const { result } = renderHook(() => useBudgetValidation({
+      currentBudget: 100000,
+      currentSalaries: 80000,
+    }));
+
+    act(() => {
+      const isValid = result.current.validateNewBudget(70000);
+      expect(isValid).toBe(false);
+      expect(result.current.error).toBe('Budget cannot be less than current salaries (€80,000)');
+    });
+  });
+});
+
+// GREEN: Implement hook
+export function useBudgetValidation({ currentBudget, currentSalaries }) {
+  const [error, setError] = useState<string | null>(null);
+
+  const validateNewBudget = (newBudget: number): boolean => {
+    if (newBudget < currentSalaries) {
+      setError(`Budget cannot be less than current salaries (€${currentSalaries.toLocaleString()})`);
+      return false;
+    }
+    setError(null);
+    return true;
+  };
+
+  return { validateNewBudget, error };
+}
+
+// REFACTOR: Add more edge cases
+// Run tests: PASS ✓
+```
+
+### TDD Checkpoints (Frontend)
+
+Use TDD checkpoints for UI components:
+
+**Checkpoint 1: Test Written (RED)**
+- [ ] Test describes user behavior clearly
+- [ ] Test uses accessible queries (getByRole, getByLabelText)
+- [ ] Test is focused on ONE user action
+- [ ] Run test: FAILS as expected
+
+**Checkpoint 2: Component Built (GREEN)**
+- [ ] Minimum component built to pass test
+- [ ] Component renders correctly
+- [ ] Run test: PASSES
+
+**Checkpoint 3: Component Refactored (REFACTOR)**
+- [ ] Styling applied (TailwindCSS/Material-UI)
+- [ ] Accessibility attributes added (aria-labels, roles)
+- [ ] Code is clean and readable
+- [ ] Run test: STILL PASSES
+
+**Checkpoint 4: Visual Verification**
+- [ ] Component checked in browser (npm start)
+- [ ] Responsive at 375px, 768px, 1024px
+- [ ] Keyboard navigation works
+- [ ] Visual appearance matches design
+
+**Checkpoint 5: Coverage Check**
+- [ ] Run coverage: `npm test -- --coverage ComponentName`
+- [ ] Component has > 80% coverage
+- [ ] All user interactions covered
+
+### TDD Verification Commands (Frontend)
+
+After each TDD cycle, run these commands:
+
+```bash
+# Run specific test file
+npm test -- EditBudgetModal.test.tsx
+
+# Run tests in watch mode (during development)
+npm test -- --watch
+
+# Run tests with coverage
+npm test -- --coverage EditBudgetModal
+
+# Run all tests
+npm test
+
+# Run E2E tests
+npm run test:e2e
+
+# Visual verification
+npm start
+# Open: http://localhost:3000
+```
+
+### TDD Anti-Patterns (Frontend Edition)
+
+❌ **Don't test implementation details**
+```typescript
+// BAD: Testing state variable
+expect(component.state.isOpen).toBe(true);
+
+// GOOD: Testing user-visible behavior
+expect(screen.getByRole('dialog')).toBeInTheDocument();
+```
+
+❌ **Don't skip visual verification**
+- Tests passing ≠ component looks good
+- Always verify in browser
+
+❌ **Don't test styling directly**
+- Focus on behavior, not class names
+- Exception: Conditional styling that affects UX
+
+❌ **Don't write tests after building UI**
+- That's not TDD
+- Write test → Build component → Refactor
+
+❌ **Don't ignore accessibility in tests**
+```typescript
+// BAD: Using test IDs
+screen.getByTestId('submit-button');
+
+// GOOD: Using accessible queries
+screen.getByRole('button', { name: /submit/i });
+```
+
+### TDD Benefits (Frontend)
+
+✅ **User-Focused**: Tests describe what users do, not implementation
+✅ **Refactor Safely**: Change component internals without breaking tests
+✅ **Accessibility**: Using semantic queries enforces accessible markup
+✅ **Documentation**: Tests show how component should be used
+✅ **Confidence**: Know your UI works before visual QA
+✅ **Fast Feedback**: Catch bugs in seconds, not minutes
+
+### Integration with Workflow (Frontend)
+
+When following the workflow, apply TDD:
+
+1. **Read requirements** → Identify user behaviors to test
+2. **Plan implementation** → List test scenarios (happy path, errors, edge cases)
+3. **For each component**:
+   - Write test (RED)
+   - Build component (GREEN)
+   - Refactor (REFACTOR)
+   - Visual verify in browser
+   - Update 50_state.md
+4. **Mock API if needed** (backend not ready)
+5. **Commit frequently** after each RED-GREEN-REFACTOR cycle
+6. **Mark complete** only when tests pass + visual verification done
+
+### Example: Complete TDD Session (Frontend)
+
+```
+Task: Implement "Assign Player to Club" modal
+
+TDD Session:
+1. ✍️ Write test: test_modal_displays_player_and_available_clubs
+   → Run: npm test -- AssignPlayerModal
+   → Result: FAIL ❌ (expected)
+
+2. ✅ Build component: AssignPlayerModal with player info and clubs list
+   → Run: npm test -- AssignPlayerModal
+   → Result: PASS ✅
+
+3. 🔧 Refactor: Add TailwindCSS styling, improve layout
+   → Run: npm test -- AssignPlayerModal
+   → Result: PASS ✅
+
+4. 👁️ Visual verify: Open modal in browser
+   → Looks good at 375px, 768px, 1024px
+   → Keyboard navigation works
+
+5. ✍️ Write test: test_shows_error_if_assignment_would_exceed_budget
+   → Run: FAIL ❌ (validation not implemented)
+
+6. ✅ Implement: Add budget validation before assignment
+   → Run: PASS ✅
+
+7. 🔧 Refactor: Extract validation to custom hook
+   → Run: PASS ✅
+
+8. ✍️ Write test: test_successfully_assigns_player_and_closes_modal
+   → Run: FAIL ❌ (API integration not done)
+
+9. ✅ Implement: API call with React Query, success toast
+   → Run: PASS ✅
+
+10. 🔧 Refactor: Extract API client
+    → Run: PASS ✅
+
+11. 👁️ Visual verify: Test complete flow in browser
+    → Select club → See budget validation → Assign → Success toast → Modal closes
+
+12. ✅ Run full test suite: npm test
+    → All tests: PASS ✅
+
+13. ✅ Check coverage: 92% on AssignPlayerModal
+
+14. ✅ Update 50_state.md: AssignPlayerModal implemented with TDD
+
+15. ✅ Commit: "TDD: Implement AssignPlayerModal with budget validation"
+```
+
+### Visual TDD: Test → Build → Verify
+
+**The cycle includes visual verification:**
+
+```
+RED (Test) → GREEN (Build) → REFACTOR (Polish) → VISUAL (Verify in browser)
+     ↑                                                        ↓
+     ←←←←←←←←←←←←←←← (Next feature) ←←←←←←←←←←←←←←←←←←←←←←←←←
+```
+
+**Remember**:
+- Tests ensure **functionality**
+- Visual verification ensures **UX**
+- Both are required for complete TDD
+
+**TDD for frontend is a discipline that leads to:**
+- Better component API design
+- Accessible markup
+- Testable, maintainable components
+- Confidence in refactoring
+- **The tests ARE the specification of user behavior.**
+
+---
+
 ## 🔧 Stack Técnico (Frontend)
 
 - **Framework**: React 18+
