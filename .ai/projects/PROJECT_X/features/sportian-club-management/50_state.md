@@ -111,27 +111,73 @@
 6. Update this 50_state.md with progress
 7. Update status to COMPLETED when done
 
-### Implementation Priorities
-**Phase 1 - Domain (Critical)**:
-- Club, Player, Coach entities
-- Money value object
-- Repository interfaces
-- Domain exceptions (BudgetExceededException, ClubConflictException, etc.)
+### Implementation Priorities (WITH TDD)
 
-**Phase 2 - Application**:
-- Use Cases (one per operation)
-- DTOs for requests
-- Notification system (interface + email implementation)
+> **CRITICAL**: Backend MUST follow TDD (Test-Driven Development) methodology.
+> Write tests FIRST, then implement code to make them pass (Red-Green-Refactor cycle).
 
-**Phase 3 - Infrastructure**:
-- Doctrine mappings and repositories
-- REST Controllers (manual, no API Platform)
-- Error handling (exception listeners)
+**Phase 1 - Domain (Critical) - TDD MANDATORY**:
+1. **Money Value Object** (TDD):
+   - RED: Write tests for Money creation, addition, comparison
+   - GREEN: Implement Money value object
+   - REFACTOR: Clean up implementation
+   - Coverage target: > 95%
 
-**Phase 4 - Testing**:
-- Unit tests for use cases, entities, value objects
-- Integration tests for repositories
-- Functional tests for API endpoints
+2. **Domain Entities** (TDD):
+   - RED: Write tests for Club, Player, Coach creation and behavior
+   - GREEN: Implement entities with business rules
+   - REFACTOR: Extract common patterns
+   - Coverage target: > 90%
+
+3. **Repository Interfaces** (TDD):
+   - RED: Write unit tests with mocked repositories
+   - GREEN: Define interfaces
+   - REFACTOR: Add documentation
+
+4. **Domain Exceptions** (TDD):
+   - RED: Write tests that expect specific exceptions
+   - GREEN: Implement exceptions (BudgetExceededException, ClubConflictException, etc.)
+   - REFACTOR: Add context to exceptions
+
+**Phase 2 - Application - TDD MANDATORY**:
+1. **Use Cases** (TDD - one per operation):
+   - RED: Write test for use case behavior (CreateClub, AssignPlayerToClub, etc.)
+   - GREEN: Implement use case with mocked repositories
+   - REFACTOR: Extract validation logic
+   - Coverage target: > 90%
+
+2. **DTOs**:
+   - Create request/response DTOs
+   - Add validation rules
+
+3. **Notification System** (TDD):
+   - RED: Write tests for NotificationService interface
+   - GREEN: Implement interface + email implementation
+   - REFACTOR: Make it extensible
+   - Coverage target: > 85%
+
+**Phase 3 - Infrastructure - TDD RECOMMENDED**:
+1. **Doctrine Repositories** (Integration Tests):
+   - Write integration tests with test database
+   - Implement repository with Doctrine
+   - Verify database queries
+   - Coverage target: > 80%
+
+2. **REST Controllers** (Functional Tests):
+   - Write functional tests for each endpoint
+   - Implement controllers (manual, no API Platform)
+   - Test with real HTTP requests
+   - Coverage target: > 75%
+
+3. **Error Handling**:
+   - Exception listeners
+   - API error responses
+
+**Phase 4 - Verification**:
+- Run full test suite: `php bin/phpunit`
+- Check coverage: `php bin/phpunit --coverage-text`
+- Verify overall coverage > 80%
+- All business rules (RN-1 to RN-4) tested
 
 ### Technical Notes
 - Stack: Symfony 6.4+, PHP 8.1+, Doctrine ORM, MySQL/PostgreSQL
@@ -193,7 +239,11 @@
 14. Update this 50_state.md with progress
 15. Update status to COMPLETED when done
 
-### Implementation Priorities
+### Implementation Priorities (WITH TDD)
+
+> **CRITICAL**: Frontend MUST follow TDD (Test-Driven Development) methodology.
+> Write tests FIRST for user behaviors, then build UI to make tests pass (Red-Green-Refactor-Visual cycle).
+
 **Phase 1 - Setup**:
 - Create React + TypeScript + Vite project
 - Configure TailwindCSS
@@ -201,33 +251,112 @@
 - Setup React Query
 - Setup Axios client con baseURL configurable
 - Create base layout (Navbar, Sidebar)
+- Setup testing: Jest + React Testing Library + MSW (for API mocking)
 
-**Phase 2 - UI Components Base**:
-- Button, Input, Modal, Table, Toast components
-- Form utilities con React Hook Form + Zod
+**Phase 2 - UI Components Base - TDD MANDATORY**:
+1. **Button Component** (TDD):
+   - RED: Write tests for click handling, disabled state, loading state
+   - GREEN: Build Button component
+   - REFACTOR: Add TailwindCSS styling
+   - VISUAL: Verify in Storybook or browser
 
-**Phase 3 - Pages (puede usar datos fake/mock)**:
-- Dashboard con métricas
-- ClubsPage (lista + crear)
-- ClubDetailPage (con tabs jugadores/entrenadores)
-- PlayersPage (lista + crear + filtros + paginación)
-- CoachesPage (lista + crear)
+2. **Input Component** (TDD):
+   - RED: Write tests for value changes, validation errors, disabled state
+   - GREEN: Build Input component
+   - REFACTOR: Add styling and accessibility
+   - VISUAL: Verify keyboard navigation
 
-**Phase 4 - Modales e Interacciones**:
-- EditBudgetModal
-- AssignPlayerModal
-- AssignCoachModal
-- Confirmaciones de baja
+3. **Modal, Table, Toast** (TDD):
+   - Same TDD cycle for each component
+   - Focus on user interactions
+   - Coverage target: > 80%
 
-**Phase 5 - Integration**:
-- Conectar con API real si está lista
-- Tests de integración
+4. **Form Utilities** (TDD):
+   - RED: Write tests for React Hook Form + Zod integration
+   - GREEN: Create form wrapper components
+   - REFACTOR: Extract validation schemas
 
-**Phase 6 - Polish**:
-- Loading states
-- Error handling
-- Responsive design
-- Tests
+**Phase 3 - Pages (TDD with mocked API) - TDD MANDATORY**:
+1. **Dashboard** (TDD):
+   - RED: Test dashboard renders metrics, loading state, error state
+   - GREEN: Build Dashboard with mocked data
+   - REFACTOR: Extract metric cards
+   - VISUAL: Verify responsive layout
+   - Coverage target: > 75%
+
+2. **ClubsPage** (TDD):
+   - RED: Test list rendering, create button, navigation
+   - GREEN: Build ClubsPage with MSW mocked API
+   - REFACTOR: Extract ClubCard component
+   - VISUAL: Verify grid layout
+   - Coverage target: > 80%
+
+3. **ClubDetailPage** (TDD):
+   - RED: Test tabs navigation, player/coach lists display
+   - GREEN: Build ClubDetailPage with tabs
+   - REFACTOR: Extract TabPanel component
+   - VISUAL: Verify tab transitions
+   - Coverage target: > 80%
+
+4. **PlayersPage** (TDD):
+   - RED: Test search, filters, pagination
+   - GREEN: Build PlayersPage with mocked data
+   - REFACTOR: Extract usePlayerFilters hook
+   - VISUAL: Verify filter interactions
+   - Coverage target: > 85%
+
+5. **CoachesPage** (TDD):
+   - Similar TDD approach to PlayersPage
+   - Coverage target: > 80%
+
+**Phase 4 - Modales e Interacciones - TDD MANDATORY**:
+1. **EditBudgetModal** (TDD):
+   - RED: Test modal opens, shows current budget, validation (RN-2)
+   - GREEN: Build modal with form validation
+   - REFACTOR: Extract useBudgetValidation hook
+   - VISUAL: Verify error messages display
+   - Coverage target: > 85%
+
+2. **AssignPlayerModal** (TDD):
+   - RED: Test club selection, budget validation (RN-1), success flow
+   - GREEN: Build modal with API integration
+   - REFACTOR: Extract useAssignPlayer hook
+   - VISUAL: Verify complete flow
+   - Coverage target: > 85%
+
+3. **AssignCoachModal** (TDD):
+   - Similar TDD approach to AssignPlayerModal
+   - Coverage target: > 85%
+
+4. **Confirmaciones de Baja** (TDD):
+   - RED: Test confirmation dialog shows, cancel/confirm actions
+   - GREEN: Build confirmation modal
+   - REFACTOR: Make it reusable
+   - VISUAL: Verify UX flow
+
+**Phase 5 - Integration (Replace Mocks with Real API)**:
+- Verify backend API is ready (check backend 50_state.md)
+- Replace MSW mocks with real Axios calls
+- Write integration tests with real API (if possible)
+- Test all CRUD operations end-to-end
+- Verify business rules work (RN-1 to RN-4)
+- Coverage target integration tests: > 70%
+
+**Phase 6 - Polish & Accessibility**:
+- Add loading states (test with TDD)
+- Add error handling (test with TDD)
+- Verify responsive design (375px, 768px, 1024px)
+- Run accessibility audit (Lighthouse score > 90)
+- E2E tests with Cypress/Playwright
+- Final coverage check: > 70% overall
+
+**Phase 7 - Verification**:
+- Run full test suite: `npm test`
+- Check coverage: `npm test -- --coverage`
+- Verify overall coverage > 70%
+- Run build: `npm run build` (must succeed)
+- Run E2E tests: `npm run test:e2e`
+- Verify all business rules from UI (RN-1 to RN-4)
 
 ### Technical Notes
 - Stack: React 18+, TypeScript 5+, Vite, TailwindCSS
@@ -295,8 +424,10 @@
 - [ ] Planning documentation reviewed
 - [ ] Backend code reviewed
 - [ ] DDD architecture correctly implemented
+- [ ] **TDD methodology followed** (tests written before code)
 - [ ] All backend tests passing
-- [ ] Backend test coverage >= 70%
+- [ ] Backend test coverage >= 80% (increased due to TDD)
+- [ ] All business logic has unit tests
 - [ ] All API endpoints functional
 - [ ] Code follows PSR-12
 - [ ] No PHPStan warnings
@@ -304,8 +435,10 @@
 **Frontend**:
 - [ ] Frontend code reviewed
 - [ ] Component architecture clear and organized
+- [ ] **TDD methodology followed** (tests written before components)
 - [ ] All frontend tests passing
-- [ ] Frontend test coverage >= 60%
+- [ ] Frontend test coverage >= 70% (increased due to TDD)
+- [ ] All user interactions have tests
 - [ ] All pages implemented and functional
 - [ ] TypeScript without errors
 - [ ] No critical ESLint warnings
@@ -364,6 +497,45 @@
 
 ## 📝 Decision Log
 
+### [2026-01-16] Mandatory TDD Methodology for Backend and Frontend
+
+**Context**: To ensure high code quality, testability, and validate implementation from the start, the team decided to enforce Test-Driven Development (TDD) methodology for both Backend and Frontend roles.
+
+**Decision**:
+- Backend and Frontend MUST follow TDD (Red-Green-Refactor cycle)
+- Tests must be written BEFORE implementation code
+- Mandatory for:
+  - Backend: Domain entities, value objects, use cases, business logic
+  - Frontend: Form components, interactive components, components with logic, custom hooks
+- Updated role definitions (backend.md, frontend.md) with comprehensive TDD sections
+- Updated 50_state.md implementation priorities to reflect TDD approach
+- Increased coverage targets:
+  - Backend: 70% → 80% (due to TDD)
+  - Frontend: 60% → 70% (due to TDD)
+
+**Rationale**:
+- TDD ensures code is testable by design
+- Tests become specification of behavior (business rules, user interactions)
+- Reduces bugs by catching them early in RED phase
+- Improves code design (forces thinking about API before implementation)
+- Provides confidence for refactoring
+- Creates living documentation through tests
+- Aligns with DDD principles (domain behavior is test-specified)
+- For frontend: Enforces accessible markup (using semantic test queries)
+
+**Impact**:
+- Backend Engineer must write tests first for all core business logic
+- Frontend Engineer must write tests first for all UI with logic
+- QA will verify TDD was followed (review git history, test timestamps)
+- Implementation may feel slower initially but leads to higher quality
+- Fewer bugs in QA phase expected
+- Higher test coverage naturally achieved
+- Better documentation through tests
+
+**Made By**: System configuration based on user request
+
+---
+
 ### [2026-01-16] Added Frontend to Project Scope
 
 **Context**: Initially planned as backend-only API REST. User requested to add frontend development.
@@ -414,6 +586,7 @@
 
 | Date | Role | From | To | Reason |
 |------|------|------|-----|--------|
+| 2026-01-16 00:25 | Backend, Frontend | Implementation approach | TDD MANDATORY | TDD methodology enforced for both roles (tests before code) |
 | 2026-01-16 00:10 | Frontend | N/A | PENDING | Frontend role activated (project updated to full-stack) |
 | 2026-01-15 23:55 | (all) | - | PENDING | Feature initialized with task-breakdown workflow |
 
@@ -422,13 +595,18 @@
 ## 📌 Notes and Communication
 
 ### General Notes
+- **[2026-01-16 TDD UPDATE]** TDD (Test-Driven Development) now MANDATORY for Backend and Frontend
+  - Backend: Tests first for domain, use cases, business logic (coverage target: 80%)
+  - Frontend: Tests first for forms, interactive components, hooks (coverage target: 70%)
+  - Red-Green-Refactor cycle enforced
+  - QA will verify TDD was followed
 - **[2026-01-16 UPDATE]** Project expanded to full-stack (Backend + Frontend)
 - Feature initialized with comprehensive requirements in 00_requirements.md
 - Project-specific rules updated for Sportian (full-stack)
 - Using task-breakdown workflow for thorough planning
 - **Frontend**: React 18+ TypeScript added to project scope
-- Backend focus: DDD, business rules, extensible notification system
-- Frontend focus: Modern UI, responsive design, API integration
+- Backend focus: DDD, business rules, extensible notification system, **TDD**
+- Frontend focus: Modern UI, responsive design, API integration, **TDD**
 
 ### Inter-role Communication
 (Use this section for messages between roles)
@@ -455,10 +633,14 @@ Feature is complete when:
 - ✅ Status set to COMPLETED
 
 ### Implementation (Backend)
+- ✅ **TDD methodology followed** (tests written BEFORE implementation)
 - ✅ All API operations implemented and functional
 - ✅ All business rules validated correctly
 - ✅ DDD architecture implemented (Domain/Application/Infrastructure)
-- ✅ Tests written (Unit, Integration, Functional) with >= 70% coverage
+- ✅ Tests written (Unit, Integration, Functional) with >= 80% coverage
+- ✅ All domain entities have unit tests
+- ✅ All use cases have unit tests
+- ✅ All business rules have dedicated tests
 - ✅ Docker setup working
 - ✅ Fixtures loaded
 - ✅ CORS configured for frontend
@@ -466,12 +648,16 @@ Feature is complete when:
 - ✅ Status set to COMPLETED
 
 ### Implementation (Frontend)
+- ✅ **TDD methodology followed** (tests written BEFORE components)
 - ✅ All pages implemented (Dashboard, Clubs, Players, Coaches)
 - ✅ All CRUD operations working from UI
 - ✅ Validations and error handling implemented
 - ✅ Loading states and feedback implemented
 - ✅ Responsive design (mobile + desktop)
-- ✅ Tests written (component, integration) with >= 60% coverage
+- ✅ Tests written (component, integration) with >= 70% coverage
+- ✅ All forms have validation tests
+- ✅ All user interactions have tests
+- ✅ All modals have behavior tests
 - ✅ Build successful (`npm run build`)
 - ✅ TypeScript without errors, no critical ESLint warnings
 - ✅ Code clean and well-structured
