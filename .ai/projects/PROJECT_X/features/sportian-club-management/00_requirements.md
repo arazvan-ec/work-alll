@@ -1,25 +1,37 @@
-# Sportian - Prueba Técnica Backend
+# Sportian - Aplicación Full-Stack
 ## Sistema de Gestión de Clubes, Jugadores y Entrenadores
 
 **Feature ID**: `sportian-club-management`
 **Workflow**: `task-breakdown`
-**Fecha**: 2026-01-15
+**Fecha Inicio**: 2026-01-15
+**Última Actualización**: 2026-01-16 (agregado frontend)
 
 ---
 
 ## 📋 Descripción General
 
-Desarrollar una aplicación Symfony (API REST) para la gestión de clubes deportivos, jugadores y entrenadores con control de presupuestos y salarios.
+Desarrollar una **aplicación completa full-stack** para la gestión de clubes deportivos, jugadores y entrenadores con control de presupuestos y salarios.
+
+- **Backend**: API REST con Symfony + DDD
+- **Frontend**: Aplicación web con React + TypeScript
 
 ---
 
 ## 🎯 Objetivos
 
+### Backend
 - API REST completa para gestión de entidades deportivas
 - Sistema de asociación de jugadores/entrenadores con clubes
 - Control de presupuestos y validación de salarios
 - Sistema de notificaciones extensible (email + preparado para SMS/WhatsApp)
 - Aplicación de DDD y buenas prácticas Symfony
+
+### Frontend
+- Interfaz de usuario moderna y responsive
+- Gestión completa de clubes, jugadores y entrenadores desde UI
+- Validaciones en tiempo real
+- Feedback visual inmediato
+- Experiencia de usuario fluida
 
 ---
 
@@ -452,13 +464,531 @@ backend/
 
 ---
 
+## 🎨 Requisitos del Frontend
+
+### Stack Técnico Frontend
+
+- **Framework**: React 18+
+- **Language**: TypeScript 5+
+- **Build Tool**: Vite 5+
+- **Styling**: TailwindCSS 3+
+- **State Management**: React Query (TanStack Query)
+- **Routing**: React Router 6+
+- **Forms**: React Hook Form + Zod
+- **HTTP Client**: Axios
+- **Testing**: Vitest + React Testing Library
+
+### Páginas de la Aplicación
+
+#### 1. **Dashboard** (`/`)
+**Propósito**: Vista general del sistema con métricas clave
+
+**Elementos**:
+- **Cards de métricas**:
+  - Total de clubes
+  - Total de jugadores (con breakdown: libres vs contratados)
+  - Total de entrenadores (con breakdown: libres vs contratados)
+  - Presupuesto total de todos los clubes
+- **Links rápidos**: Botones para crear club/jugador/entrenador
+- **Opcional**: Tabla con últimas operaciones
+
+---
+
+#### 2. **Lista de Clubes** (`/clubs`)
+**Propósito**: Visualizar todos los clubes del sistema
+
+**Elementos**:
+- **Tabla** con columnas:
+  - Nombre del club
+  - Presupuesto total
+  - Salarios totales (suma de jugadores + entrenadores)
+  - Presupuesto disponible (presupuesto - salarios)
+  - Acciones (Ver detalle, Editar presupuesto)
+- **Botón**: "Nuevo Club" (→ /clubs/new)
+- **Interacción**: Click en fila para ir a detalle
+
+---
+
+#### 3. **Crear Club** (`/clubs/new`)
+**Propósito**: Formulario para crear un nuevo club
+
+**Formulario**:
+- **Campo**: Nombre (text input, requerido, min 3 caracteres)
+- **Campo**: Presupuesto (number input, requerido, > 0)
+- **Botones**: Guardar, Cancelar
+
+**Validaciones**:
+- Nombre no vacío
+- Presupuesto > 0
+- Mostrar errores inline
+
+**Al guardar exitoso**:
+- Toast de éxito
+- Redirigir a `/clubs/:id` (detalle del club creado)
+
+---
+
+#### 4. **Detalle de Club** (`/clubs/:id`)
+**Propósito**: Ver y gestionar un club específico
+
+**Secciones**:
+
+**Header del club**:
+- Nombre del club
+- Presupuesto total
+- Salarios totales
+- **Presupuesto disponible** (destacado con color):
+  - Verde si disponible > 20% del total
+  - Amarillo si disponible entre 0-20%
+  - Rojo si disponible < 0 (caso raro, no debería pasar)
+- **Botón**: "Editar Presupuesto" (abre modal)
+
+**Tabs**:
+
+**Tab 1: Jugadores**
+- **Tabla de jugadores** del club:
+  - Nombre
+  - Salario
+  - Botón "Dar de baja" (con confirmación)
+- **Botón**: "Asociar Jugador" (abre modal)
+  - **Modal contenido**:
+    - Select con jugadores libres (nombre + "Libre")
+    - Input de salario
+    - Calcular y mostrar presupuesto disponible después de asignar
+    - Warning si presupuesto se excedería
+    - Botón "Asociar"
+
+**Tab 2: Entrenadores**
+- **Tabla de entrenadores** del club:
+  - Nombre
+  - Salario
+  - Botón "Dar de baja" (con confirmación)
+- **Botón**: "Asociar Entrenador" (abre modal)
+  - Similar al modal de jugadores
+
+---
+
+#### 5. **Lista de Jugadores** (`/players`)
+**Propósito**: Visualizar todos los jugadores del sistema
+
+**Elementos**:
+- **Filtros**:
+  - Input de búsqueda por nombre (búsqueda parcial)
+  - Opcional: Filtro por estado (Libre / Contratado)
+- **Tabla** con columnas:
+  - Nombre
+  - Club (o "Libre" si no tiene)
+  - Salario (o "-" si libre)
+  - Acciones (Ver detalle)
+- **Paginación**: 10 items por página (configurable)
+- **Botón**: "Nuevo Jugador" (→ /players/new)
+
+---
+
+#### 6. **Crear Jugador** (`/players/new`)
+**Propósito**: Formulario para crear un nuevo jugador libre
+
+**Formulario**:
+- **Campo**: Nombre (text input, requerido, min 3 caracteres)
+- **Botones**: Guardar, Cancelar
+
+**Validaciones**:
+- Nombre no vacío
+
+**Al guardar exitoso**:
+- Toast de éxito: "Jugador creado exitosamente"
+- Redirigir a `/players` o `/players/:id`
+
+---
+
+#### 7. **Detalle de Jugador** (`/players/:id`)
+**Propósito**: Ver información de un jugador
+
+**Elementos**:
+- **Información**:
+  - Nombre
+  - Estado: "Libre" o "Contratado en [Nombre del Club]"
+  - Salario (si está contratado)
+
+**Acciones**:
+- **Si está libre**: Botón "Asociar a Club" (abre modal)
+  - Select de clubes
+  - Input de salario
+  - Validar presupuesto disponible
+- **Si está contratado**:
+  - Botón "Dar de baja del club" (con confirmación)
+  - Link al club
+
+---
+
+#### 8. **Lista de Entrenadores** (`/coaches`)
+**Propósito**: Visualizar todos los entrenadores del sistema
+
+**Elementos**: Igual que Lista de Jugadores pero para entrenadores
+
+---
+
+#### 9. **Crear Entrenador** (`/coaches/new`)
+**Propósito**: Formulario para crear un nuevo entrenador libre
+
+**Elementos**: Igual que Crear Jugador
+
+---
+
+#### 10. **Detalle de Entrenador** (`/coaches/:id`)
+**Propósito**: Ver información de un entrenador
+
+**Elementos**: Igual que Detalle de Jugador pero para entrenadores
+
+---
+
+### Componentes Reutilizables
+
+#### UI Components Base
+- **Button**: Variantes (primary, secondary, danger), tamaños, estados (loading, disabled)
+- **Input**: Text, number, con validación inline, mensajes de error
+- **Modal**: Overlay, cierre con X o backdrop, header/body/footer
+- **Table**: Tabla responsive, con sorting opcional, paginación
+- **Toast/Notification**: Success, error, warning, info, auto-dismiss
+
+#### Feature Components
+- **ClubCard**: Card para dashboard con métricas de un club
+- **ClubForm**: Formulario de crear/editar club
+- **EditBudgetModal**: Modal para editar presupuesto con validaciones
+- **AssignPlayerModal**: Modal para asociar jugador con validación de presupuesto
+- **AssignCoachModal**: Modal para asociar entrenador
+- **PlayerTable**: Tabla de jugadores con filtros y paginación
+- **CoachTable**: Tabla de entrenadores
+- **ConfirmationModal**: Modal genérico de confirmación para acciones destructivas
+
+---
+
+### Validaciones del Frontend
+
+#### Validaciones de Formularios (Zod schemas)
+
+**CreateClubSchema**:
+```typescript
+{
+  name: string (min 3, max 100),
+  budget: number (> 0, max 999999999)
+}
+```
+
+**AssignPlayerSchema**:
+```typescript
+{
+  playerId: number (required),
+  salary: number (>= 0, max 999999999)
+}
+```
+
+#### Validaciones en Tiempo Real
+
+1. **Editar Presupuesto**:
+   - Calcular suma de salarios actuales
+   - Si nuevo presupuesto < salarios actuales → Mostrar error antes de enviar
+   - Warning amarillo si reduce presupuesto
+
+2. **Asociar Jugador/Entrenador**:
+   - Calcular presupuesto disponible
+   - Mostrar en tiempo real: "Disponible: €X,XXX"
+   - Si salario > disponible → Deshabilitar botón "Asociar" y mostrar error
+
+---
+
+### Manejo de Errores del Frontend
+
+#### Errores de API (desde backend)
+
+**400 Bad Request**:
+- Toast rojo: "Datos inválidos. Por favor revisa el formulario."
+
+**404 Not Found**:
+- Toast rojo: "Recurso no encontrado."
+- Redirigir a lista correspondiente
+
+**409 Conflict**:
+- Toast rojo: "Este jugador/entrenador ya pertenece a otro club."
+
+**422 Unprocessable Entity**:
+- Mostrar mensaje específico del backend
+- Ejemplo: "Presupuesto insuficiente. Disponible: €50,000, Requerido: €80,000"
+
+**500 Internal Server Error**:
+- Toast rojo: "Error del servidor. Por favor intenta nuevamente."
+- Log error en consola para debugging
+
+#### Errores de Red
+
+**Network Error** (backend offline):
+- Toast rojo: "No se puede conectar al servidor. Verifica tu conexión."
+
+**Timeout**:
+- Toast rojo: "La operación está tardando demasiado. Intenta nuevamente."
+
+---
+
+### Estados de Loading
+
+- **Skeleton loaders** en listas mientras se cargan datos
+- **Spinners en botones** durante requests (ej: "Guardando...")
+- **Deshabilitar formularios** durante envío
+- **Loading state** en tablas (mostrar "Cargando..." o spinner)
+
+---
+
+### UX Considerations
+
+#### Confirmaciones
+- **Dar de baja jugador/entrenador**: Modal de confirmación
+  - "¿Estás seguro de dar de baja a [Nombre]?"
+  - Explicar consecuencias: "El jugador quedará libre y su salario será eliminado"
+  - Botones: "Cancelar", "Confirmar"
+
+- **Reducir presupuesto**: Warning visual si reduce presupuesto
+  - "Estás reduciendo el presupuesto de €X a €Y. ¿Continuar?"
+
+#### Feedback Inmediato
+- **React Query invalidation**: Después de crear/modificar/eliminar, refrescar listas automáticamente
+- **Optimistic updates**: Actualizar UI optimistamente antes de confirmar del backend (opcional)
+- **Toasts**: Confirmación visual de operaciones exitosas
+
+#### Responsive Design
+- **Mobile first**: Diseño que funciona en mobile y escala a desktop
+- **Tablas responsivas**:
+  - Desktop: Tabla tradicional
+  - Mobile: Cards apiladas con información key
+- **Navigation**:
+  - Desktop: Sidebar o top navbar
+  - Mobile: Hamburger menu
+
+---
+
+### Arquitectura del Frontend
+
+```
+frontend/
+├── src/
+│   ├── App.tsx                     # App principal con router
+│   ├── main.tsx                    # Entry point
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── Layout.tsx          # Layout con navbar
+│   │   │   ├── Navbar.tsx
+│   │   │   └── Sidebar.tsx
+│   │   ├── ui/
+│   │   │   ├── Button.tsx
+│   │   │   ├── Input.tsx
+│   │   │   ├── Modal.tsx
+│   │   │   ├── Table.tsx
+│   │   │   └── Toast.tsx
+│   │   ├── clubs/
+│   │   │   ├── ClubCard.tsx
+│   │   │   ├── ClubForm.tsx
+│   │   │   ├── ClubTable.tsx
+│   │   │   ├── ClubDetail.tsx
+│   │   │   ├── EditBudgetModal.tsx
+│   │   │   └── AssignMemberModal.tsx
+│   │   ├── players/
+│   │   │   ├── PlayerTable.tsx
+│   │   │   ├── PlayerForm.tsx
+│   │   │   └── PlayerDetail.tsx
+│   │   └── coaches/
+│   │       ├── CoachTable.tsx
+│   │       ├── CoachForm.tsx
+│   │       └── CoachDetail.tsx
+│   ├── pages/
+│   │   ├── Dashboard.tsx
+│   │   ├── ClubsPage.tsx
+│   │   ├── ClubDetailPage.tsx
+│   │   ├── CreateClubPage.tsx
+│   │   ├── PlayersPage.tsx
+│   │   ├── CreatePlayerPage.tsx
+│   │   ├── PlayerDetailPage.tsx
+│   │   ├── CoachesPage.tsx
+│   │   ├── CreateCoachPage.tsx
+│   │   └── CoachDetailPage.tsx
+│   ├── services/
+│   │   ├── api.ts                  # Axios instance configurado
+│   │   ├── clubs.service.ts        # API calls para clubs
+│   │   ├── players.service.ts      # API calls para players
+│   │   └── coaches.service.ts      # API calls para coaches
+│   ├── hooks/
+│   │   ├── useClubs.ts             # React Query hooks para clubs
+│   │   ├── usePlayers.ts           # React Query hooks para players
+│   │   ├── useCoaches.ts           # React Query hooks para coaches
+│   │   └── useToast.ts             # Hook para mostrar toasts
+│   ├── types/
+│   │   ├── club.ts                 # TypeScript types
+│   │   ├── player.ts
+│   │   └── coach.ts
+│   ├── utils/
+│   │   ├── formatters.ts           # Formateo de moneda, fechas
+│   │   └── validators.ts           # Validaciones comunes
+│   └── schemas/
+│       ├── club.schema.ts          # Zod schemas para validación
+│       ├── player.schema.ts
+│       └── coach.schema.ts
+├── public/
+├── index.html
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+├── tailwind.config.js
+└── .env.example
+```
+
+---
+
+### TypeScript Types
+
+```typescript
+// types/club.ts
+export interface Club {
+  id: number;
+  name: string;
+  budget: number;
+  players?: Player[];
+  coaches?: Coach[];
+}
+
+export interface ClubWithStats extends Club {
+  totalSalaries: number;
+  availableBudget: number;
+}
+
+// types/player.ts
+export interface Player {
+  id: number;
+  name: string;
+  salary?: number;
+  club?: {
+    id: number;
+    name: string;
+  };
+}
+
+// types/coach.ts
+export interface Coach {
+  id: number;
+  name: string;
+  salary?: number;
+  club?: {
+    id: number;
+    name: string;
+  };
+}
+
+// types/api.ts
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    pages: number;
+    limit: number;
+  };
+}
+
+export interface ApiError {
+  error: string;
+}
+```
+
+---
+
+### Testing del Frontend
+
+#### Unit Tests (Vitest + React Testing Library)
+
+**Componentes a testear**:
+- Button, Input, Modal, Table
+- ClubForm (validaciones)
+- EditBudgetModal (cálculos de presupuesto)
+- AssignPlayerModal (cálculos de presupuesto disponible)
+
+**Ejemplo de test**:
+```typescript
+test('ClubForm should validate budget > 0', () => {
+  render(<ClubForm onSubmit={jest.fn()} />);
+
+  const budgetInput = screen.getByLabelText('Presupuesto');
+  fireEvent.change(budgetInput, { target: { value: '-100' } });
+
+  expect(screen.getByText('El presupuesto debe ser mayor a 0')).toBeInTheDocument();
+});
+```
+
+#### Integration Tests
+
+**Flujos a testear**:
+- Crear club → Ver en lista
+- Asociar jugador → Ver en detalle de club
+- Editar presupuesto → Validar restricción
+- Paginación de jugadores funciona
+
+**Mocking de API**:
+- Usar MSW (Mock Service Worker) o mock manual de axios
+
+---
+
+### Definition of Done (Frontend)
+
+El frontend está completo cuando:
+
+**Funcionalidad**:
+- ✅ Todas las páginas implementadas y navegables
+- ✅ CRUD completo de clubes funcionando
+- ✅ CRUD completo de jugadores funcionando
+- ✅ CRUD completo de entrenadores funcionando
+- ✅ Asociar/desasociar jugadores/entrenadores desde UI funcionando
+- ✅ Editar presupuesto con validaciones funcionando
+- ✅ Filtros y paginación funcionando
+- ✅ Todas las reglas de negocio validadas desde UI
+
+**UX**:
+- ✅ Loading states implementados
+- ✅ Error handling con toasts funcionando
+- ✅ Validaciones de formularios en tiempo real
+- ✅ Confirmaciones antes de acciones destructivas
+- ✅ Responsive design (mobile + desktop)
+
+**Técnico**:
+- ✅ TypeScript sin errores
+- ✅ ESLint sin warnings críticos
+- ✅ Build exitoso (`npm run build`)
+- ✅ Tests escritos (mínimo 60% coverage)
+- ✅ Todos los tests pasando
+- ✅ Integración con backend funcionando
+- ✅ CORS configurado correctamente
+
+**Código**:
+- ✅ Componentes pequeños y reutilizables
+- ✅ Props bien tipadas
+- ✅ Código limpio y bien estructurado
+- ✅ No código duplicado
+- ✅ Comments donde sea necesario
+
+---
+
 ## 📚 Referencias
 
+### Backend
 - Symfony Documentation: https://symfony.com/doc/current/index.html
 - Doctrine ORM: https://www.doctrine-project.org/projects/orm.html
 - REST API Best Practices: https://restfulapi.net/
 - DDD in PHP: https://github.com/dddinphp
 
+### Frontend
+- React Documentation: https://react.dev/
+- TypeScript Handbook: https://www.typescriptlang.org/docs/
+- React Query (TanStack Query): https://tanstack.com/query/latest
+- React Router: https://reactrouter.com/
+- TailwindCSS: https://tailwindcss.com/docs
+- Zod: https://zod.dev/
+- Vitest: https://vitest.dev/
+
 ---
 
-**Listo para comenzar el desarrollo siguiendo el workflow task-breakdown.**
+**Listo para comenzar el desarrollo full-stack siguiendo el workflow task-breakdown.**
