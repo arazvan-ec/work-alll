@@ -1,0 +1,47 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: sportian-php
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - database
+    networks:
+      - sportian
+
+  nginx:
+    image: nginx:alpine
+    container_name: sportian-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - sportian
+
+  database:
+    image: mysql:8.0
+    container_name: sportian-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sportian
+      MYSQL_USER: sportian
+      MYSQL_PASSWORD: sportian
+    ports:
+      - "3306:3306"
+    volumes:
+      - sportian_db_data:/var/lib/mysql
+    networks:
+      - sportian
+
+networks:
+  sportian:
+    driver: bridge
+
+volumes:
+  sportian_db_data:

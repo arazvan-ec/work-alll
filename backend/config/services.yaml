@@ -1,0 +1,54 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    notification.from_email: '%env(NOTIFICATION_FROM_EMAIL)%'
+    notification.to_email: '%env(NOTIFICATION_TO_EMAIL)%'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Domain/Entity/'
+            - '../src/Domain/ValueObject/'
+            - '../src/Domain/Exception/'
+            - '../src/Application/DTO/'
+            - '../src/Kernel.php'
+
+    # Repository interfaces
+    App\Domain\Repository\PlayerRepositoryInterface:
+        class: App\Infrastructure\Persistence\Repository\DoctrinePlayerRepository
+
+    App\Domain\Repository\CoachRepositoryInterface:
+        class: App\Infrastructure\Persistence\Repository\DoctrineCoachRepository
+
+    App\Domain\Repository\ClubRepositoryInterface:
+        class: App\Infrastructure\Persistence\Repository\DoctrineClubRepository
+
+    # Notification channels
+    App\Infrastructure\Notification\EmailNotificationChannel:
+        arguments:
+            $fromEmail: '%notification.from_email%'
+            $toEmail: '%notification.to_email%'
+        tags:
+            - { name: 'app.notification_channel' }
+
+    # Notification service with tagged channels
+    App\Application\Service\NotificationService:
+        arguments:
+            $channels: !tagged_iterator 'app.notification_channel'
+
+    # Exception listener
+    App\Infrastructure\Http\EventListener\ExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }
