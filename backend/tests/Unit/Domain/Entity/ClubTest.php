@@ -8,6 +8,7 @@ use App\Domain\Entity\Club;
 use App\Domain\Entity\Coach;
 use App\Domain\Entity\Player;
 use App\Domain\Exception\BudgetExceededException;
+use App\Domain\Exception\BudgetTooLowException;
 use App\Domain\Exception\PlayerAlreadyHasClubException;
 use App\Domain\Exception\CoachAlreadyHasClubException;
 use App\Domain\Exception\PlayerNotInClubException;
@@ -156,7 +157,8 @@ class ClubTest extends TestCase
         $player = Player::create('Lionel Messi');
         $club->assignPlayer($player, new Money(1500000));
 
-        $this->expectException(BudgetExceededException::class);
+        $this->expectException(BudgetTooLowException::class);
+        $this->expectExceptionMessage('Budget cannot be lower than current salaries. Current: 1500000');
         $club->updateBudget(new Money(1000000));
     }
 

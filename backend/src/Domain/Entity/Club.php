@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Entity;
 
 use App\Domain\Exception\BudgetExceededException;
+use App\Domain\Exception\BudgetTooLowException;
 use App\Domain\Exception\PlayerAlreadyHasClubException;
 use App\Domain\Exception\CoachAlreadyHasClubException;
 use App\Domain\Exception\PlayerNotInClubException;
@@ -142,10 +143,7 @@ class Club
         $totalSalaries = $this->totalSalaries();
 
         if ($newBudget->isLessThan($totalSalaries)) {
-            throw new BudgetExceededException(
-                $newBudget->amount(),
-                $totalSalaries->amount()
-            );
+            throw new BudgetTooLowException($totalSalaries->amount());
         }
 
         $this->budget = $newBudget;

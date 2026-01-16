@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Http\EventListener;
 
 use App\Domain\Exception\BudgetExceededException;
+use App\Domain\Exception\BudgetTooLowException;
 use App\Domain\Exception\ClubNotFoundException;
 use App\Domain\Exception\CoachAlreadyHasClubException;
 use App\Domain\Exception\CoachNotFoundException;
@@ -61,7 +62,8 @@ class ExceptionListener
         }
 
         // Business rule violation (budget exceeded, not in club)
-        if ($exception instanceof BudgetExceededException) {
+        if ($exception instanceof BudgetExceededException ||
+            $exception instanceof BudgetTooLowException) {
             return new JsonResponse(
                 ['error' => $exception->getMessage()],
                 Response::HTTP_UNPROCESSABLE_ENTITY
