@@ -267,6 +267,365 @@ Let me start with Checkpoint 1. Ready to proceed?"
 ❌ **Don't**: Assume context you don't have
 ✅ **Do**: Ask for reference files or patterns
 
+## 🧪 TDD (Test-Driven Development) - MANDATORY
+
+> **TDD is not optional for core business logic. Write tests first, then make them pass.**
+
+### What is TDD?
+
+TDD (Test-Driven Development) is a software development methodology where you write tests **before** writing the implementation code. This ensures that your code is testable, focused, and meets requirements from the start.
+
+### The Red-Green-Refactor Cycle
+
+TDD follows a simple cycle:
+
+1. **🔴 RED**: Write a failing test
+   - Write a test for the functionality you want to implement
+   - Run the test → It should FAIL (because the code doesn't exist yet)
+   - If it doesn't fail, the test is wrong or the feature already exists
+
+2. **🟢 GREEN**: Make the test pass
+   - Write the **minimum** code needed to make the test pass
+   - Don't worry about perfection, just make it work
+   - Run the test → It should PASS
+
+3. **🔵 REFACTOR**: Improve the code
+   - Clean up the code without changing behavior
+   - Remove duplication
+   - Improve names, structure, patterns
+   - Run the test → It should still PASS
+
+**Repeat** this cycle for each small piece of functionality.
+
+### When to Use TDD
+
+✅ **MANDATORY for**:
+- Domain entities and value objects (core business logic)
+- Use cases (application layer logic)
+- Business rules validation
+- Complex calculations or algorithms
+- Repository implementations (unit tests with mocks)
+
+✅ **RECOMMENDED for**:
+- Controllers (functional tests)
+- Services
+- Event handlers
+- Data transformations
+
+⚠️ **OPTIONAL for**:
+- Simple getters/setters
+- Configuration files
+- Trivial code with no logic
+
+### TDD Workflow Integration
+
+When implementing a feature, follow this TDD workflow:
+
+**Step 1: Plan with Tests**
+```
+Task: Implement "Club budget validation" (RN-1: salary sum ≤ budget)
+
+TDD Plan:
+1. Test: Club rejects player if salary exceeds available budget
+2. Test: Club accepts player if salary is within budget
+3. Test: Club calculates available budget correctly
+4. Test: Club validation throws BudgetExceededException
+```
+
+**Step 2: Implement with Red-Green-Refactor**
+
+```php
+// RED: Write failing test first
+class ClubTest extends TestCase
+{
+    public function test_club_rejects_player_when_salary_exceeds_budget(): void
+    {
+        // Arrange
+        $club = new Club(name: 'FC Test', budget: Money::fromFloat(50000));
+        $player = new Player(name: 'John Doe', salary: Money::fromFloat(60000));
+
+        // Act & Assert
+        $this->expectException(BudgetExceededException::class);
+        $club->assignPlayer($player);
+    }
+}
+
+// Run test: php bin/phpunit --filter test_club_rejects_player
+// Expected: FAIL (method assignPlayer doesn't exist yet)
+
+// GREEN: Write minimum code to pass
+class Club
+{
+    public function assignPlayer(Player $player): void
+    {
+        $totalSalaries = $this->calculateTotalSalaries();
+        $newTotal = $totalSalaries->add($player->getSalary());
+
+        if ($newTotal->isGreaterThan($this->budget)) {
+            throw new BudgetExceededException();
+        }
+
+        $this->players[] = $player;
+    }
+
+    private function calculateTotalSalaries(): Money
+    {
+        // Minimum implementation
+        return array_reduce(
+            $this->players,
+            fn($sum, $p) => $sum->add($p->getSalary()),
+            Money::zero()
+        );
+    }
+}
+
+// Run test: php bin/phpunit --filter test_club_rejects_player
+// Expected: PASS ✓
+
+// REFACTOR: Clean up (if needed)
+// Run test again: Should still PASS ✓
+```
+
+**Step 3: Continue with Next Test**
+
+```php
+// RED: Next test
+public function test_club_accepts_player_when_salary_within_budget(): void
+{
+    $club = new Club(name: 'FC Test', budget: Money::fromFloat(100000));
+    $player = new Player(name: 'John Doe', salary: Money::fromFloat(50000));
+
+    $club->assignPlayer($player);
+
+    $this->assertCount(1, $club->getPlayers());
+    $this->assertTrue($club->hasPlayer($player));
+}
+
+// Run: PASS ✓ (code already handles this case)
+```
+
+### TDD Examples by Layer
+
+**Domain Layer (Entities, Value Objects)**
+
+```php
+// RED: Test first
+class MoneyTest extends TestCase
+{
+    public function test_money_can_be_created_from_float(): void
+    {
+        $money = Money::fromFloat(100.50);
+
+        $this->assertEquals(10050, $money->getCents());
+        $this->assertEquals(100.50, $money->toFloat());
+    }
+
+    public function test_money_addition_works_correctly(): void
+    {
+        $money1 = Money::fromFloat(100.00);
+        $money2 = Money::fromFloat(50.50);
+
+        $result = $money1->add($money2);
+
+        $this->assertEquals(150.50, $result->toFloat());
+    }
+}
+
+// GREEN: Implement Money value object
+// REFACTOR: Clean up
+```
+
+**Application Layer (Use Cases)**
+
+```php
+// RED: Test first
+class CreateClubUseCaseTest extends TestCase
+{
+    public function test_creates_club_with_valid_data(): void
+    {
+        $repository = $this->createMock(ClubRepository::class);
+        $repository->expects($this->once())
+                   ->method('save')
+                   ->with($this->callback(function($club) {
+                       return $club->getName() === 'FC Test'
+                           && $club->getBudget()->toFloat() === 100000.00;
+                   }));
+
+        $useCase = new CreateClubUseCase($repository);
+        $dto = new CreateClubDTO(name: 'FC Test', budget: 100000.00);
+
+        $result = $useCase->execute($dto);
+
+        $this->assertInstanceOf(ClubDTO::class, $result);
+    }
+}
+
+// GREEN: Implement use case
+// REFACTOR: Clean up
+```
+
+**Infrastructure Layer (Repositories)**
+
+```php
+// RED: Test first (integration test)
+class DoctrineClubRepositoryTest extends KernelTestCase
+{
+    public function test_saves_club_to_database(): void
+    {
+        $repository = self::getContainer()->get(ClubRepository::class);
+        $club = new Club(name: 'FC Test', budget: Money::fromFloat(100000));
+
+        $repository->save($club);
+        $repository->flush();
+
+        $found = $repository->findById($club->getId());
+
+        $this->assertNotNull($found);
+        $this->assertEquals('FC Test', $found->getName());
+    }
+}
+
+// GREEN: Implement repository
+// REFACTOR: Clean up
+```
+
+### TDD Checkpoints
+
+Use TDD checkpoints to ensure you're following the methodology:
+
+**Checkpoint 1: Test Written (RED)**
+- [ ] Test written and compiles
+- [ ] Test describes the behavior clearly
+- [ ] Test is focused (tests ONE thing)
+- [ ] Run test: FAILS as expected
+
+**Checkpoint 2: Test Passing (GREEN)**
+- [ ] Minimum code written to pass test
+- [ ] Run test: PASSES
+- [ ] No shortcuts or cheating (actually implements logic)
+
+**Checkpoint 3: Code Refactored (REFACTOR)**
+- [ ] Code is clean and readable
+- [ ] No duplication
+- [ ] Names are descriptive
+- [ ] Run test: STILL PASSES
+
+**Checkpoint 4: Coverage Check**
+- [ ] Run coverage: `php bin/phpunit --coverage-text`
+- [ ] Critical paths have > 90% coverage
+- [ ] Overall coverage > 80%
+
+### TDD Verification Commands
+
+After each TDD cycle, run these commands:
+
+```bash
+# Run specific test
+php bin/phpunit tests/Domain/Entity/ClubTest.php
+
+# Run all tests for a class
+php bin/phpunit --filter Club
+
+# Run tests with coverage
+php bin/phpunit --coverage-text --filter Club
+
+# Run all unit tests
+php bin/phpunit tests/Unit/
+
+# Run all integration tests
+php bin/phpunit tests/Integration/ --group=integration
+
+# Full test suite
+php bin/phpunit
+```
+
+### TDD Anti-Patterns (Avoid These!)
+
+❌ **Don't write tests after implementation**
+- That's not TDD, that's just testing
+- You lose the design benefits of TDD
+
+❌ **Don't write complex tests first**
+- Start simple, build up
+- One assertion per test when possible
+
+❌ **Don't skip the RED step**
+- Always see the test fail first
+- Ensures the test is actually testing something
+
+❌ **Don't write all tests at once**
+- Write one test → Make it pass → Next test
+- Red-Green-Refactor is a CYCLE, not phases
+
+❌ **Don't ignore failing tests**
+- If a test fails, stop and fix it
+- Never commit failing tests
+
+### TDD Benefits
+
+✅ **Design**: Forces you to think about API before implementation
+✅ **Confidence**: Know your code works because tests prove it
+✅ **Refactoring**: Can refactor safely with test safety net
+✅ **Documentation**: Tests document how code should be used
+✅ **Debugging**: Catch bugs early when they're easy to fix
+✅ **Coverage**: Achieves high test coverage naturally
+
+### Integration with Workflow
+
+When following the workflow, apply TDD:
+
+1. **Read requirements** → Identify testable behaviors
+2. **Plan implementation** → List tests to write
+3. **For each feature**:
+   - Write test (RED)
+   - Implement (GREEN)
+   - Refactor (REFACTOR)
+   - Verify
+   - Update 50_state.md
+4. **Commit frequently** after each RED-GREEN-REFACTOR cycle
+5. **Mark complete** only when all tests pass
+
+### Example: Complete TDD Session
+
+```
+Task: Implement RN-1 (Budget validation on player assignment)
+
+TDD Session:
+1. ✍️ Write test: test_club_rejects_player_when_exceeds_budget
+   → Run: FAIL ❌ (expected)
+
+2. ✅ Implement: Club::assignPlayer() with validation
+   → Run: PASS ✅
+
+3. 🔧 Refactor: Extract calculateAvailableBudget() method
+   → Run: PASS ✅
+
+4. ✍️ Write test: test_club_accepts_player_when_within_budget
+   → Run: PASS ✅ (already works)
+
+5. ✍️ Write test: test_club_includes_coach_salaries_in_calculation
+   → Run: FAIL ❌ (expected, coaches not included yet)
+
+6. ✅ Implement: Include coaches in calculateTotalSalaries()
+   → Run: PASS ✅
+
+7. 🔧 Refactor: Rename to calculateTotalSalaries() for clarity
+   → Run: PASS ✅
+
+8. ✅ Run full suite: php bin/phpunit
+   → All tests: PASS ✅
+
+9. ✅ Check coverage: 95% on Club entity
+
+10. ✅ Update 50_state.md: RN-1 implemented with TDD
+
+11. ✅ Commit: "TDD: Implement RN-1 budget validation"
+```
+
+**Remember**: TDD is a discipline. It feels slow at first, but leads to better design, fewer bugs, and higher confidence. **The tests are the specification.**
+
+---
+
 ## 🔧 Stack Técnico (Backend)
 
 - **Framework**: Symfony 6+
