@@ -4,94 +4,83 @@
 **Feature Name**: Sistema de Gestión de Clubes, Jugadores y Entrenadores (Full-Stack)
 **Workflow**: task-breakdown.yaml
 **Created**: 2026-01-15
-**Last Updated**: 2026-01-16 00:10:00 UTC
+**Last Updated**: 2026-01-16 01:30:00 UTC
 
 ---
 
 ## 📊 Overall Status
 
-**Current Stage**: planning (requirements analysis)
-**Overall Progress**: 0% (0/4 roles completed)
+**Current Stage**: implementation (backend + frontend can start)
+**Overall Progress**: 25% (1/4 roles completed)
 
 ---
 
 ## 👤 Planner
 
-**Status**: PENDING
-**Last Updated**: 2026-01-15 23:55:00 UTC
-**Updated By**: System initialization
+**Status**: COMPLETED
+**Last Updated**: 2026-01-16 01:30:00 UTC
+**Updated By**: Planner
 
 ### Current Task
-- Starting task-breakdown workflow
-- Must create comprehensive planning documentation
+- Planning phase completed. All documentation created.
 
 ### Completed Tasks
-- (none)
+- [x] Read all rules (global_rules.md, ddd_rules.md, project_specific.md)
+- [x] Read 00_requirements.md
+- [x] Created **00_requirements_analysis.md** - Exhaustive requirements analysis
+- [x] Created **10_architecture.md** - Complete DDD design for backend
+- [x] Created **15_data_model.md** - Detailed data model with Doctrine mappings
+- [x] Created **20_api_contracts.md** - ALL 16 API endpoints documented
+- [x] Created **25_ui_wireframes.md** - UI pages, components, flows
+- [x] Created **30_tasks_backend.md** - 45 detailed backend tasks
+- [x] Created **31_tasks_frontend.md** - 42 detailed frontend tasks
+- [x] Created **32_tasks_qa.md** - 24 QA tasks
+- [x] Created **35_dependencies.md** - Task dependency map
+- [x] Created **sportian-club-management.md** - Executive summary
 
 ### Blocked By
 - (none)
 
-### Next Steps (task-breakdown workflow)
-1. Read all rules (global_rules.md, ddd_rules.md, project_specific.md)
-2. Read 00_requirements.md (already created with backend + frontend specification)
-3. Create **00_requirements_analysis.md** - Exhaustive requirements analysis
-4. Create **10_architecture.md** - Complete DDD design for backend
-5. Create **15_data_model.md** - Detailed data model
-6. Create **20_api_contracts.md** - ALL API endpoints documented
-7. Create **25_ui_wireframes.md** - UI pages, components, flows (textual description)
-8. Create **30_tasks_backend.md** - VERY detailed backend tasks with:
-   - Exact file paths to create/modify
-   - Acceptance criteria for each task
-   - Verification commands
-   - Dependencies between tasks
-   - Estimated effort
-9. Create **31_tasks_frontend.md** - VERY detailed frontend tasks with:
-   - Pages and components to create
-   - API integration points
-   - Validation requirements
-   - Responsive considerations
-   - Dependencies
-10. Create **32_tasks_qa.md** - Detailed QA tasks (backend + frontend + integration)
-11. Create **35_dependencies.md** - Task dependency map
-12. Create **sportian-club-management.md** - Executive summary
-13. Update status to COMPLETED
+### Planning Documentation Created
 
-### Planning Documentation Requirements
-**CRITICAL**: El Planner debe generar documentación EXHAUSTIVA antes de que Backend, Frontend y QA comiencen. Esto incluye:
-- Análisis completo de entidades (Club, Player, Coach)
-- Diseño DDD detallado (Domain, Application, Infrastructure)
-- TODOS los endpoints con request/response completos
-- UI wireframes y flujos de usuario (textual)
-- Reglas de negocio explicadas en detalle
-- Tareas backend con nivel de detalle máximo
-- Tareas frontend con nivel de detalle máximo (componentes, páginas, integraciones)
+| Document | Description | Tasks |
+|----------|-------------|-------|
+| 00_requirements_analysis.md | Full requirements breakdown | - |
+| 10_architecture.md | DDD design (Domain/Application/Infrastructure) | - |
+| 15_data_model.md | Database schema, Doctrine mappings | - |
+| 20_api_contracts.md | All 16 API endpoints with request/response | - |
+| 25_ui_wireframes.md | 10 pages, modals, user flows | - |
+| 30_tasks_backend.md | Detailed backend implementation guide | 45 tasks |
+| 31_tasks_frontend.md | Detailed frontend implementation guide | 42 tasks |
+| 32_tasks_qa.md | QA checklist and test scenarios | 24 tasks |
+| 35_dependencies.md | Task dependencies and parallel work guide | - |
+| sportian-club-management.md | Executive summary | - |
 
 ### Notes
-- Workflow task-breakdown selected for comprehensive planning
-- **Project updated to Full-Stack**: Backend (Symfony 6.4+ DDD) + Frontend (React 18+ TypeScript)
-- Backend: Symfony 6.4+ with DDD, Doctrine ORM, MySQL/PostgreSQL
-- Frontend: React 18+, TypeScript, TailwindCSS, React Query
-- Email notifications with extensible design
-- Business rules are critical (budget control, club exclusivity)
-- Frontend puede trabajar en paralelo con Backend (usando mocks si es necesario)
+- **PLANNING COMPLETE**: Backend and Frontend can now start implementation
+- Workflow: task-breakdown (comprehensive planning)
+- **Full-Stack**: Backend (Symfony 6.4+ DDD) + Frontend (React 18+ TypeScript)
+- Business rules documented in detail (RN-1, RN-2, RN-3, RN-4)
+- Backend and Frontend can work in parallel
+- Frontend can use mocks if Backend not ready
 
 ---
 
 ## 💻 Backend
 
 **Status**: PENDING
-**Last Updated**: 2026-01-15 23:55:00 UTC
-**Updated By**: System initialization
+**Last Updated**: 2026-01-16 01:30:00 UTC
+**Updated By**: Planner (unblocked)
 
 ### Current Task
-- Waiting for planning to complete (all documentation)
+- Ready to start implementation
+- Read planning documentation first
 
 ### Completed Tasks
 - (none)
 
 ### Blocked By
-- Planning documentation not completed yet
-- Must wait for Planner to finish ALL planning phases
+- (none - Planning is COMPLETED, can start now)
 
 ### Next Steps
 1. Wait for planner status: COMPLETED
@@ -111,27 +100,73 @@
 6. Update this 50_state.md with progress
 7. Update status to COMPLETED when done
 
-### Implementation Priorities
-**Phase 1 - Domain (Critical)**:
-- Club, Player, Coach entities
-- Money value object
-- Repository interfaces
-- Domain exceptions (BudgetExceededException, ClubConflictException, etc.)
+### Implementation Priorities (WITH TDD)
 
-**Phase 2 - Application**:
-- Use Cases (one per operation)
-- DTOs for requests
-- Notification system (interface + email implementation)
+> **CRITICAL**: Backend MUST follow TDD (Test-Driven Development) methodology.
+> Write tests FIRST, then implement code to make them pass (Red-Green-Refactor cycle).
 
-**Phase 3 - Infrastructure**:
-- Doctrine mappings and repositories
-- REST Controllers (manual, no API Platform)
-- Error handling (exception listeners)
+**Phase 1 - Domain (Critical) - TDD MANDATORY**:
+1. **Money Value Object** (TDD):
+   - RED: Write tests for Money creation, addition, comparison
+   - GREEN: Implement Money value object
+   - REFACTOR: Clean up implementation
+   - Coverage target: > 95%
 
-**Phase 4 - Testing**:
-- Unit tests for use cases, entities, value objects
-- Integration tests for repositories
-- Functional tests for API endpoints
+2. **Domain Entities** (TDD):
+   - RED: Write tests for Club, Player, Coach creation and behavior
+   - GREEN: Implement entities with business rules
+   - REFACTOR: Extract common patterns
+   - Coverage target: > 90%
+
+3. **Repository Interfaces** (TDD):
+   - RED: Write unit tests with mocked repositories
+   - GREEN: Define interfaces
+   - REFACTOR: Add documentation
+
+4. **Domain Exceptions** (TDD):
+   - RED: Write tests that expect specific exceptions
+   - GREEN: Implement exceptions (BudgetExceededException, ClubConflictException, etc.)
+   - REFACTOR: Add context to exceptions
+
+**Phase 2 - Application - TDD MANDATORY**:
+1. **Use Cases** (TDD - one per operation):
+   - RED: Write test for use case behavior (CreateClub, AssignPlayerToClub, etc.)
+   - GREEN: Implement use case with mocked repositories
+   - REFACTOR: Extract validation logic
+   - Coverage target: > 90%
+
+2. **DTOs**:
+   - Create request/response DTOs
+   - Add validation rules
+
+3. **Notification System** (TDD):
+   - RED: Write tests for NotificationService interface
+   - GREEN: Implement interface + email implementation
+   - REFACTOR: Make it extensible
+   - Coverage target: > 85%
+
+**Phase 3 - Infrastructure - TDD RECOMMENDED**:
+1. **Doctrine Repositories** (Integration Tests):
+   - Write integration tests with test database
+   - Implement repository with Doctrine
+   - Verify database queries
+   - Coverage target: > 80%
+
+2. **REST Controllers** (Functional Tests):
+   - Write functional tests for each endpoint
+   - Implement controllers (manual, no API Platform)
+   - Test with real HTTP requests
+   - Coverage target: > 75%
+
+3. **Error Handling**:
+   - Exception listeners
+   - API error responses
+
+**Phase 4 - Verification**:
+- Run full test suite: `php bin/phpunit`
+- Check coverage: `php bin/phpunit --coverage-text`
+- Verify overall coverage > 80%
+- All business rules (RN-1 to RN-4) tested
 
 ### Technical Notes
 - Stack: Symfony 6.4+, PHP 8.1+, Doctrine ORM, MySQL/PostgreSQL
@@ -153,6 +188,13 @@
 
 ### Current Task
 - Implementation completed with mocked API
+**Status**: PENDING
+**Last Updated**: 2026-01-16 01:30:00 UTC
+**Updated By**: Planner (unblocked)
+
+### Current Task
+- Ready to start implementation
+- Read planning documentation first
 
 ### Completed Tasks
 - [x] Setup React 18 + TypeScript + Vite + TailwindCSS project
@@ -278,6 +320,169 @@ frontend/
 - **RN-1**: Budget validation on player/coach assignment (shows error if salary > available budget)
 - **RN-2**: Budget validation on edit (cannot reduce below current total salaries)
 - **RN-3**: Club exclusivity (only free agents shown in assignment modals)
+- (none - Planning is COMPLETED, can start now)
+
+### Dependencies
+- Backend API: Can mock if not ready
+- Can work in parallel with Backend using mocked API
+
+### Next Steps
+1. Wait for planner status: COMPLETED
+2. Read ALL planning documentation:
+   - 00_requirements_analysis.md
+   - 20_api_contracts.md (para entender API)
+   - 25_ui_wireframes.md (wireframes y flujos)
+   - 31_tasks_frontend.md (tareas detalladas)
+   - sportian-club-management.md
+3. Setup proyecto React + TypeScript + Vite + TailwindCSS
+4. Implementar estructura base (routing, layout, API client)
+5. **Opción A**: Si Backend está listo → Integrar con API real
+6. **Opción B**: Si Backend NO está listo → Mockear API con MSW o datos fake
+7. Implementar páginas y componentes según plan:
+   - Dashboard
+   - Páginas de clubes (lista, detalle, crear)
+   - Páginas de jugadores (lista, detalle, crear)
+   - Páginas de entrenadores (lista, detalle, crear)
+   - Modales (editar presupuesto, asociar jugador/entrenador)
+   - Componentes UI reutilizables
+8. Implementar validaciones y manejo de errores
+9. Implementar estados de loading y feedback
+10. Hacer responsive design (mobile + desktop)
+11. Write tests (component tests, integration tests)
+12. Commit frecuentemente con checkpoints
+13. Si usó mocks: reemplazar con API real cuando Backend esté listo
+14. Update this 50_state.md with progress
+15. Update status to COMPLETED when done
+
+### Implementation Priorities (WITH TDD)
+
+> **CRITICAL**: Frontend MUST follow TDD (Test-Driven Development) methodology.
+> Write tests FIRST for user behaviors, then build UI to make tests pass (Red-Green-Refactor-Visual cycle).
+
+**Phase 1 - Setup**:
+- Create React + TypeScript + Vite project
+- Configure TailwindCSS
+- Setup React Router
+- Setup React Query
+- Setup Axios client con baseURL configurable
+- Create base layout (Navbar, Sidebar)
+- Setup testing: Jest + React Testing Library + MSW (for API mocking)
+
+**Phase 2 - UI Components Base - TDD MANDATORY**:
+1. **Button Component** (TDD):
+   - RED: Write tests for click handling, disabled state, loading state
+   - GREEN: Build Button component
+   - REFACTOR: Add TailwindCSS styling
+   - VISUAL: Verify in Storybook or browser
+
+2. **Input Component** (TDD):
+   - RED: Write tests for value changes, validation errors, disabled state
+   - GREEN: Build Input component
+   - REFACTOR: Add styling and accessibility
+   - VISUAL: Verify keyboard navigation
+
+3. **Modal, Table, Toast** (TDD):
+   - Same TDD cycle for each component
+   - Focus on user interactions
+   - Coverage target: > 80%
+
+4. **Form Utilities** (TDD):
+   - RED: Write tests for React Hook Form + Zod integration
+   - GREEN: Create form wrapper components
+   - REFACTOR: Extract validation schemas
+
+**Phase 3 - Pages (TDD with mocked API) - TDD MANDATORY**:
+1. **Dashboard** (TDD):
+   - RED: Test dashboard renders metrics, loading state, error state
+   - GREEN: Build Dashboard with mocked data
+   - REFACTOR: Extract metric cards
+   - VISUAL: Verify responsive layout
+   - Coverage target: > 75%
+
+2. **ClubsPage** (TDD):
+   - RED: Test list rendering, create button, navigation
+   - GREEN: Build ClubsPage with MSW mocked API
+   - REFACTOR: Extract ClubCard component
+   - VISUAL: Verify grid layout
+   - Coverage target: > 80%
+
+3. **ClubDetailPage** (TDD):
+   - RED: Test tabs navigation, player/coach lists display
+   - GREEN: Build ClubDetailPage with tabs
+   - REFACTOR: Extract TabPanel component
+   - VISUAL: Verify tab transitions
+   - Coverage target: > 80%
+
+4. **PlayersPage** (TDD):
+   - RED: Test search, filters, pagination
+   - GREEN: Build PlayersPage with mocked data
+   - REFACTOR: Extract usePlayerFilters hook
+   - VISUAL: Verify filter interactions
+   - Coverage target: > 85%
+
+5. **CoachesPage** (TDD):
+   - Similar TDD approach to PlayersPage
+   - Coverage target: > 80%
+
+**Phase 4 - Modales e Interacciones - TDD MANDATORY**:
+1. **EditBudgetModal** (TDD):
+   - RED: Test modal opens, shows current budget, validation (RN-2)
+   - GREEN: Build modal with form validation
+   - REFACTOR: Extract useBudgetValidation hook
+   - VISUAL: Verify error messages display
+   - Coverage target: > 85%
+
+2. **AssignPlayerModal** (TDD):
+   - RED: Test club selection, budget validation (RN-1), success flow
+   - GREEN: Build modal with API integration
+   - REFACTOR: Extract useAssignPlayer hook
+   - VISUAL: Verify complete flow
+   - Coverage target: > 85%
+
+3. **AssignCoachModal** (TDD):
+   - Similar TDD approach to AssignPlayerModal
+   - Coverage target: > 85%
+
+4. **Confirmaciones de Baja** (TDD):
+   - RED: Test confirmation dialog shows, cancel/confirm actions
+   - GREEN: Build confirmation modal
+   - REFACTOR: Make it reusable
+   - VISUAL: Verify UX flow
+
+**Phase 5 - Integration (Replace Mocks with Real API)**:
+- Verify backend API is ready (check backend 50_state.md)
+- Replace MSW mocks with real Axios calls
+- Write integration tests with real API (if possible)
+- Test all CRUD operations end-to-end
+- Verify business rules work (RN-1 to RN-4)
+- Coverage target integration tests: > 70%
+
+**Phase 6 - Polish & Accessibility**:
+- Add loading states (test with TDD)
+- Add error handling (test with TDD)
+- Verify responsive design (375px, 768px, 1024px)
+- Run accessibility audit (Lighthouse score > 90)
+- E2E tests with Cypress/Playwright
+- Final coverage check: > 70% overall
+
+**Phase 7 - Verification**:
+- Run full test suite: `npm test`
+- Check coverage: `npm test -- --coverage`
+- Verify overall coverage > 70%
+- Run build: `npm run build` (must succeed)
+- Run E2E tests: `npm run test:e2e`
+- Verify all business rules from UI (RN-1 to RN-4)
+
+### Technical Notes
+- Stack: React 18+, TypeScript 5+, Vite, TailwindCSS
+- State management: React Query para API state
+- Forms: React Hook Form + Zod validation
+- Routing: React Router 6+
+- HTTP Client: Axios
+- Testing: Vitest + React Testing Library
+
+### Files to Create (will be detailed by Planner)
+- (waiting for planning documentation in 31_tasks_frontend.md)
 
 ### Notes
 - **USING MOCKS**: All API calls use local mock services with realistic data
@@ -291,19 +496,18 @@ frontend/
 ## 🧪 QA
 
 **Status**: PENDING
-**Last Updated**: 2026-01-15 23:55:00 UTC
-**Updated By**: System initialization
+**Last Updated**: 2026-01-16 01:30:00 UTC
+**Updated By**: Planner
 
 ### Current Task
-- Waiting for planning, backend and frontend to complete
+- Waiting for Backend and Frontend to complete
 
 ### Completed Tasks
 - (none)
 
 ### Blocked By
-- Planning not completed
-- Backend not completed
-- Frontend not completed
+- Backend not completed (waiting)
+- Frontend not completed (waiting)
 
 ### Next Steps
 1. Wait for planner status: COMPLETED
@@ -335,8 +539,10 @@ frontend/
 - [ ] Planning documentation reviewed
 - [ ] Backend code reviewed
 - [ ] DDD architecture correctly implemented
+- [ ] **TDD methodology followed** (tests written before code)
 - [ ] All backend tests passing
-- [ ] Backend test coverage >= 70%
+- [ ] Backend test coverage >= 80% (increased due to TDD)
+- [ ] All business logic has unit tests
 - [ ] All API endpoints functional
 - [ ] Code follows PSR-12
 - [ ] No PHPStan warnings
@@ -344,8 +550,10 @@ frontend/
 **Frontend**:
 - [ ] Frontend code reviewed
 - [ ] Component architecture clear and organized
+- [ ] **TDD methodology followed** (tests written before components)
 - [ ] All frontend tests passing
-- [ ] Frontend test coverage >= 60%
+- [ ] Frontend test coverage >= 70% (increased due to TDD)
+- [ ] All user interactions have tests
 - [ ] All pages implemented and functional
 - [ ] TypeScript without errors
 - [ ] No critical ESLint warnings
@@ -404,6 +612,45 @@ frontend/
 
 ## 📝 Decision Log
 
+### [2026-01-16] Mandatory TDD Methodology for Backend and Frontend
+
+**Context**: To ensure high code quality, testability, and validate implementation from the start, the team decided to enforce Test-Driven Development (TDD) methodology for both Backend and Frontend roles.
+
+**Decision**:
+- Backend and Frontend MUST follow TDD (Red-Green-Refactor cycle)
+- Tests must be written BEFORE implementation code
+- Mandatory for:
+  - Backend: Domain entities, value objects, use cases, business logic
+  - Frontend: Form components, interactive components, components with logic, custom hooks
+- Updated role definitions (backend.md, frontend.md) with comprehensive TDD sections
+- Updated 50_state.md implementation priorities to reflect TDD approach
+- Increased coverage targets:
+  - Backend: 70% → 80% (due to TDD)
+  - Frontend: 60% → 70% (due to TDD)
+
+**Rationale**:
+- TDD ensures code is testable by design
+- Tests become specification of behavior (business rules, user interactions)
+- Reduces bugs by catching them early in RED phase
+- Improves code design (forces thinking about API before implementation)
+- Provides confidence for refactoring
+- Creates living documentation through tests
+- Aligns with DDD principles (domain behavior is test-specified)
+- For frontend: Enforces accessible markup (using semantic test queries)
+
+**Impact**:
+- Backend Engineer must write tests first for all core business logic
+- Frontend Engineer must write tests first for all UI with logic
+- QA will verify TDD was followed (review git history, test timestamps)
+- Implementation may feel slower initially but leads to higher quality
+- Fewer bugs in QA phase expected
+- Higher test coverage naturally achieved
+- Better documentation through tests
+
+**Made By**: System configuration based on user request
+
+---
+
 ### [2026-01-16] Added Frontend to Project Scope
 
 **Context**: Initially planned as backend-only API REST. User requested to add frontend development.
@@ -456,6 +703,7 @@ frontend/
 |------|------|------|-----|--------|
 | 2026-01-16 01:00 | Frontend | IN_PROGRESS | COMPLETED | Frontend implementation completed with mocked API |
 | 2026-01-16 00:30 | Frontend | PENDING | IN_PROGRESS | Started frontend implementation |
+| 2026-01-16 01:30 | Planner | PENDING | COMPLETED | All planning documentation created (10 documents) |
 | 2026-01-16 00:10 | Frontend | N/A | PENDING | Frontend role activated (project updated to full-stack) |
 | 2026-01-15 23:55 | (all) | - | PENDING | Feature initialized with task-breakdown workflow |
 
@@ -464,25 +712,43 @@ frontend/
 ## 📌 Notes and Communication
 
 ### General Notes
+- **[2026-01-16 TDD UPDATE]** TDD (Test-Driven Development) now MANDATORY for Backend and Frontend
+  - Backend: Tests first for domain, use cases, business logic (coverage target: 80%)
+  - Frontend: Tests first for forms, interactive components, hooks (coverage target: 70%)
+  - Red-Green-Refactor cycle enforced
+  - QA will verify TDD was followed
 - **[2026-01-16 UPDATE]** Project expanded to full-stack (Backend + Frontend)
 - Feature initialized with comprehensive requirements in 00_requirements.md
 - Project-specific rules updated for Sportian (full-stack)
 - Using task-breakdown workflow for thorough planning
 - **Frontend**: React 18+ TypeScript added to project scope
-- Backend focus: DDD, business rules, extensible notification system
-- Frontend focus: Modern UI, responsive design, API integration
+- Backend focus: DDD, business rules, extensible notification system, **TDD**
+- Frontend focus: Modern UI, responsive design, API integration, **TDD**
 
 ### Inter-role Communication
 (Use this section for messages between roles)
 
 **Planner → Backend**:
-(Waiting for planning to complete)
+Planning is COMPLETED. You can start implementation now.
+- Read all documents in order: 00_requirements_analysis.md → 10_architecture.md → 15_data_model.md → 20_api_contracts.md → 30_tasks_backend.md
+- 45 detailed tasks with acceptance criteria
+- Follow DDD architecture strictly
+- Target coverage: >= 70%
+
+**Planner → Frontend**:
+Planning is COMPLETED. You can start implementation now.
+- Read: 00_requirements_analysis.md → 20_api_contracts.md → 25_ui_wireframes.md → 31_tasks_frontend.md
+- 42 detailed tasks with acceptance criteria
+- Can use mocks if Backend not ready
+- Target coverage: >= 60%
 
 **Planner → QA**:
-(Waiting for planning to complete)
+Planning is COMPLETED.
+- Read 32_tasks_qa.md for your checklist
+- Wait for Backend and Frontend to be COMPLETED before starting review
 
 **Backend → QA**:
-(Waiting for backend to start)
+(Waiting for backend to complete)
 
 ---
 
@@ -497,10 +763,14 @@ Feature is complete when:
 - ✅ Status set to COMPLETED
 
 ### Implementation (Backend)
+- ✅ **TDD methodology followed** (tests written BEFORE implementation)
 - ✅ All API operations implemented and functional
 - ✅ All business rules validated correctly
 - ✅ DDD architecture implemented (Domain/Application/Infrastructure)
-- ✅ Tests written (Unit, Integration, Functional) with >= 70% coverage
+- ✅ Tests written (Unit, Integration, Functional) with >= 80% coverage
+- ✅ All domain entities have unit tests
+- ✅ All use cases have unit tests
+- ✅ All business rules have dedicated tests
 - ✅ Docker setup working
 - ✅ Fixtures loaded
 - ✅ CORS configured for frontend
@@ -508,12 +778,16 @@ Feature is complete when:
 - ✅ Status set to COMPLETED
 
 ### Implementation (Frontend)
+- ✅ **TDD methodology followed** (tests written BEFORE components)
 - ✅ All pages implemented (Dashboard, Clubs, Players, Coaches)
 - ✅ All CRUD operations working from UI
 - ✅ Validations and error handling implemented
 - ✅ Loading states and feedback implemented
 - ✅ Responsive design (mobile + desktop)
-- ✅ Tests written (component, integration) with >= 60% coverage
+- ✅ Tests written (component, integration) with >= 70% coverage
+- ✅ All forms have validation tests
+- ✅ All user interactions have tests
+- ✅ All modals have behavior tests
 - ✅ Build successful (`npm run build`)
 - ✅ TypeScript without errors, no critical ESLint warnings
 - ✅ Code clean and well-structured
