@@ -1,7 +1,7 @@
-# Project-Specific Rules - PROJECT_X
+# Project-Specific Rules - Sportian
 
-**Project**: PROJECT_X
-**Type**: Full-Stack Application (Symfony Backend + React Frontend)
+**Project**: Sportian - Sistema de Gestión de Clubes Deportivos
+**Type**: Backend API REST (Symfony + DDD)
 **Last Updated**: 2026-01-15
 **Version**: 1.0
 
@@ -9,11 +9,16 @@
 
 ## 🎯 Descripción del Proyecto
 
-PROJECT_X es una aplicación full-stack que [describe brevemente qué hace el proyecto].
+**Sportian** es una API REST para gestión de clubes deportivos, jugadores y entrenadores con control de presupuestos, salarios y sistema de notificaciones extensible.
 
-- **Backend**: Symfony 6+ (PHP 8.1+, DDD architecture)
-- **Frontend1**: React 18+ (TypeScript, Administración)
-- **Frontend2**: React 18+ (TypeScript, Usuario final)
+**Prueba técnica backend** con énfasis en:
+- Domain-Driven Design (DDD)
+- Reglas de negocio complejas
+- Sistema de notificaciones extensible
+- Buenas prácticas Symfony
+
+- **Backend**: Symfony 6.4+ (PHP 8.1+, DDD architecture, Doctrine ORM)
+- **Frontend**: No aplica (solo API REST)
 
 ---
 
@@ -21,455 +26,433 @@ PROJECT_X es una aplicación full-stack que [describe brevemente qué hace el pr
 
 ```
 ./
-├── backend/             # API Symfony
-│   ├── ai/             # Contexto de AI (roles, reglas, features)
-│   ├── src/            # Código backend
-│   └── tests/          # Tests backend
+├── .ai/                 # Sistema de workflow Claude Code
+│   ├── roles/          # Definición de roles
+│   ├── projects/       # Reglas y features
+│   └── scripts/        # Herramientas de automatización
 │
-├── frontend1/          # Frontend de administración
-│   ├── ai/             # Estado de features
-│   ├── src/            # Código React
-│   └── tests/          # Tests frontend
+├── backend/            # API Symfony (DDD)
+│   ├── config/         # Configuración Symfony
+│   ├── src/
+│   │   ├── Domain/             # Capa de dominio (entidades, VOs, interfaces)
+│   │   ├── Application/        # Casos de uso
+│   │   └── Infrastructure/     # Implementaciones (Doctrine, controllers, notificaciones)
+│   ├── tests/          # Tests (Unit, Integration, Functional)
+│   ├── fixtures/       # Datos de prueba
+│   └── var/            # Cache, logs
 │
-├── frontend2/          # Frontend de usuario
-│   ├── ai/             # Estado de features
-│   ├── src/            # Código React
-│   └── tests/          # Tests frontend
+├── docker/             # Configuración Docker
+│   ├── php/
+│   ├── nginx/
+│   └── mysql/
 │
-└── scripts/            # Scripts de workflow y validación
+├── docs/               # Documentación
+│   └── postman/        # Colección Postman
+│
+└── README.md           # Instrucciones de instalación
 ```
 
 ---
 
 ## 🔧 Stack Técnico Específico
 
-### Backend
+### Backend (Sportian)
 
-- **Framework**: Symfony 6.4
-- **PHP**: 8.1+
-- **Database**: PostgreSQL 15
-- **ORM**: Doctrine ORM
+- **Framework**: Symfony 6.4 LTS
+- **PHP**: 8.1+ (recomendado 8.2)
+- **Database**: MySQL 8.0+ o PostgreSQL 14+
+- **ORM**: Doctrine ORM 2.x
 - **Testing**: PHPUnit 10
-- **API**: REST (JSON:API specification)
-- **Auth**: JWT (LexikJWTAuthenticationBundle)
+- **API**: REST (manual, sin API Platform)
+- **Validation**: Symfony Validator Component
+- **Email**: Symfony Mailer Component
+- **Docker**: Docker Compose para desarrollo
 
-### Frontend1 (Admin)
+### Prohibiciones
 
-- **Framework**: React 18
-- **Language**: TypeScript 5
-- **State**: Redux Toolkit + RTK Query
-- **UI**: Material-UI (MUI)
-- **Routing**: React Router 6
-- **Testing**: Jest + React Testing Library
-- **Build**: Vite
+- ❌ **NO usar API Platform** (implementación manual requerida)
+- ❌ **NO usar bundles que generen CRUD automático**
 
-### Frontend2 (Public)
+### Dependencias Recomendadas
 
-- **Framework**: React 18
-- **Language**: TypeScript 5
-- **State**: Context API + React Query
-- **UI**: Tailwind CSS + HeadlessUI
-- **Routing**: React Router 6
-- **Testing**: Jest + React Testing Library
-- **Build**: Vite
+**Producción**:
+- `symfony/framework-bundle` - Framework base
+- `doctrine/orm` - ORM
+- `doctrine/doctrine-bundle` - Integración Doctrine
+- `symfony/validator` - Validaciones
+- `symfony/mailer` - Emails
+- `symfony/serializer` - Serialización JSON
+- `nelmio/cors-bundle` - CORS para API
+
+**Desarrollo**:
+- `symfony/maker-bundle` - Generadores de código
+- `phpunit/phpunit` - Testing
+- `symfony/profiler-pack` - Profiling y debug
+- `doctrine/doctrine-fixtures-bundle` - Fixtures
+- `fakerphp/faker` - Datos fake para fixtures
 
 ---
 
-## 📋 Reglas Específicas del Backend
+## 📋 Reglas Específicas del Backend (Sportian)
 
-### API Endpoints
+### API Endpoints Sportian
 
-**Naming Convention**:
+**Recursos principales**: `players`, `coaches`, `clubs`
+
+**Convención REST**:
 ```
-GET    /api/{resource}           # List
-GET    /api/{resource}/{id}      # Show
-POST   /api/{resource}           # Create
-PUT    /api/{resource}/{id}      # Update (full)
-PATCH  /api/{resource}/{id}      # Update (partial)
-DELETE /api/{resource}/{id}      # Delete
+# Jugadores
+POST   /api/players                          # Crear jugador libre
+GET    /api/players/{id}                     # Obtener jugador
+
+# Entrenadores
+POST   /api/coaches                          # Crear entrenador libre
+GET    /api/coaches/{id}                     # Obtener entrenador
+
+# Clubes
+POST   /api/clubs                            # Crear club con presupuesto
+GET    /api/clubs/{id}                       # Obtener club
+PATCH  /api/clubs/{clubId}/budget            # Modificar presupuesto
+
+# Asociaciones
+POST   /api/clubs/{clubId}/players/{playerId}    # Asociar jugador a club
+DELETE /api/clubs/{clubId}/players/{playerId}    # Liberar jugador de club
+POST   /api/clubs/{clubId}/coaches/{coachId}     # Asociar entrenador a club
+DELETE /api/clubs/{clubId}/coaches/{coachId}     # Liberar entrenador de club
+
+# Listados con filtros
+GET    /api/clubs/{clubId}/players?name=John&page=1&limit=10
 ```
 
-### Response Format
+### Response Format (Sportian)
 
 **Success (200, 201)**:
 ```json
 {
-  "data": {
-    "id": "uuid",
-    "type": "users",
-    "attributes": { ... }
+  "id": 1,
+  "name": "Lionel Messi",
+  "salary": 1500000,
+  "club": {
+    "id": 1,
+    "name": "FC Barcelona"
   }
 }
 ```
 
-**Error (400, 404, 409, 500)**:
+**Success con paginación**:
 ```json
 {
-  "error": {
-    "status": 400,
-    "code": "VALIDATION_ERROR",
-    "message": "Validation failed",
-    "details": [
-      {
-        "field": "email",
-        "message": "Email is required"
-      }
-    ]
+  "data": [ ... ],
+  "meta": {
+    "total": 25,
+    "page": 1,
+    "pages": 3,
+    "limit": 10
   }
 }
 ```
+
+**Error (400, 404, 409, 422)**:
+```json
+{
+  "error": "Budget exceeded. Available: 50000, Required: 80000"
+}
+```
+
+### Códigos HTTP Sportian
+
+- `200 OK` - Operación exitosa
+- `201 Created` - Recurso creado
+- `400 Bad Request` - Request inválido (validación de input)
+- `404 Not Found` - Recurso no encontrado
+- `409 Conflict` - Conflicto (ej: jugador ya tiene club)
+- `422 Unprocessable Entity` - Regla de negocio violada (presupuesto, etc.)
+- `500 Internal Server Error` - Error del servidor
 
 ### Authentication
 
-- **JWT** en header: `Authorization: Bearer <token>`
-- **Refresh Token** endpoint: `POST /api/auth/refresh`
-- **Token expiration**: 1 hora (access), 7 días (refresh)
+**No aplica** - Esta prueba técnica no requiere autenticación.
+API pública para propósitos de la prueba.
 
 ### Rate Limiting
 
-- **Global**: 100 requests / minuto por IP
-- **Auth endpoints**: 5 requests / minuto por IP
-- **Response header** cuando se excede:
-  ```
-  HTTP/1.1 429 Too Many Requests
-  Retry-After: 60
-  ```
+**No aplica** - No requerido para esta prueba técnica.
 
 ---
 
-## 📋 Reglas Específicas del Frontend
-
-### Frontend1 (Admin)
-
-**Propósito**: Panel de administración para gestión interna
-
-**Características**:
-- Dashboard con métricas
-- CRUD completo de recursos
-- Gestión de usuarios
-- Reportes y analytics
-
-**Rutas**:
-```
-/admin/dashboard
-/admin/users
-/admin/users/:id
-/admin/reports
-/admin/settings
-```
-
-**Permisos**:
-- Solo usuarios con role `ADMIN` o `MANAGER`
-- Verificación de permisos en cada ruta
-
-### Frontend2 (Public)
-
-**Propósito**: Interfaz pública para usuarios finales
-
-**Características**:
-- Landing page
-- Registro/Login
-- Perfil de usuario
-- Funcionalidades principales del producto
-
-**Rutas**:
-```
-/
-/login
-/register
-/dashboard
-/profile
-```
-
-**Permisos**:
-- Rutas públicas: `/`, `/login`, `/register`
-- Rutas privadas: requieren autenticación
-
----
-
-## 🔐 Security Rules
+## 🔐 Security Rules (Sportian)
 
 ### Backend Security
 
-1. **Inputs**:
-   - Validar **todos** los inputs en DTOs
-   - Sanitizar strings (prevent XSS)
-   - Validar tipos de datos
+1. **Input Validation**:
+   - Validar **todos** los inputs con Symfony Validator
+   - Validar tipos de datos (integers para IDs, salarios, presupuestos)
+   - Validar rangos (presupuesto > 0, salario >= 0)
+   - Validar strings (nombre no vacío, longitud máxima)
 
 2. **SQL Injection**:
    - Usar **siempre** Doctrine Query Builder o DQL
    - **NUNCA** concatenar SQL manualmente
+   - Parámetros bindados automáticamente por Doctrine
 
-3. **CORS**:
-   ```yaml
-   # config/packages/nelmio_cors.yaml
-   nelmio_cors:
-       defaults:
-           origin_regex: true
-           allow_origin: ['^https://example\.com$']
-           allow_methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
-           allow_headers: ['Content-Type', 'Authorization']
-   ```
+3. **Business Rules Validation**:
+   - Validar reglas de negocio en servicios de dominio
+   - Lanzar excepciones específicas de dominio
+   - Convertir excepciones a respuestas HTTP apropiadas
 
-4. **HTTPS Only** en producción
+4. **Error Handling**:
+   - No exponer detalles internos en mensajes de error
+   - Logging completo de errores (con stack trace)
+   - Respuestas JSON consistentes
 
-### Frontend Security
+### Secrets Management
 
-1. **XSS Prevention**:
-   - **NUNCA** usar `dangerouslySetInnerHTML` sin sanitizar
-   - Usar librerías como `DOMPurify` si es necesario
-
-2. **CSRF**:
-   - JWT en header (no en cookies) previene CSRF
-   - Si usas cookies, agrega CSRF tokens
-
-3. **Secrets**:
-   - API keys en `.env` (no commiteadas)
-   - Usar variables de entorno en build
+- ✅ Credenciales de BD en `.env` (no commiteado)
+- ✅ Configuración de email en `.env`
+- ✅ Usar `.env.example` como template
 
 ---
 
-## 🎨 UI/UX Guidelines
+## 🧪 Testing Strategy (Sportian)
 
-### Design System
+### Backend Tests (Obligatorio)
 
-- **Colors**: [Define paleta de colores]
-- **Typography**: [Define fuentes]
-- **Spacing**: Múltiplos de 4px (4, 8, 12, 16, 24, 32, etc.)
+**Unit Tests** (Prioridad alta):
+- ✅ Todos los Use Cases (CreatePlayer, AssignPlayerToClub, UpdateClubBudget, etc.)
+- ✅ Todas las Entities del Domain (Club, Player, Coach)
+- ✅ Value Objects (Money, Email)
+- ✅ Servicios de dominio (validaciones de reglas de negocio)
 
-### Responsive Breakpoints
+**Integration Tests** (Prioridad media):
+- ✅ Repositorios (con base de datos de prueba)
+- ✅ Notificaciones (EmailNotificationChannel)
 
-```typescript
-const breakpoints = {
-  mobile: '320px',
-  tablet: '768px',
-  desktop: '1024px',
-  wide: '1440px',
-};
-```
+**Functional Tests** (Prioridad media):
+- ✅ API endpoints (Controllers) - requests HTTP completos
+- ✅ Flujos completos end-to-end
 
-### Accessibility (a11y)
-
-- ✅ Todos los inputs tienen `<label>`
-- ✅ Botones tienen texto descriptivo
-- ✅ Imágenes tienen `alt` text
-- ✅ Navegación por teclado funciona
-- ✅ Contraste mínimo WCAG AA (4.5:1)
-
----
-
-## 🧪 Testing Strategy
-
-### Backend Tests
-
-**Unit Tests**:
-- Todos los Use Cases
-- Todas las Entities del Domain
-- Value Objects
-
-**Integration Tests**:
-- Repositories
-- API endpoints (Controllers)
-
-**Coverage**: Mínimo 80%
+**Coverage objetivo**: Mínimo 70% (valorado positivamente 80%+)
 
 **Ejemplo**:
 ```bash
 cd backend
-./vendor/bin/phpunit
+# Tests unitarios
+./vendor/bin/phpunit tests/Unit
+
+# Tests de integración
+./vendor/bin/phpunit tests/Integration
+
+# Tests funcionales
+./vendor/bin/phpunit tests/Functional
+
+# Todos los tests con coverage
+./vendor/bin/phpunit --coverage-html var/coverage
 ```
 
-### Frontend Tests
+### Tests Críticos a Implementar
 
-**Unit Tests**:
-- Componentes críticos
-- Custom hooks
-- Utilidades
-
-**Integration Tests**:
-- Flujos de usuario
-- Formularios completos
-
-**E2E Tests**:
-- Login/Registration flow
-- CRUD operations
-- Casos de uso principales
-
-**Coverage**: Mínimo 70%
-
-**Ejemplo**:
-```bash
-cd frontend1
-npm test                 # Unit tests
-npm run test:e2e        # E2E tests
-```
+1. **Regla de negocio RN-1**: Validar que suma de salarios no supere presupuesto
+2. **Regla de negocio RN-2**: Validar que presupuesto no se reduzca por debajo de salarios
+3. **Regla de negocio RN-3**: Validar exclusividad de club
+4. **Notificaciones**: Verificar que se envían emails en operaciones requeridas
+5. **Paginación y filtros**: Validar que funcionan correctamente
 
 ---
 
-## 🚀 Deployment
+## 🚀 Deployment (Sportian)
 
 ### Environments
 
-- **Local**: Desarrollo local
-- **Staging**: Pre-producción (staging.example.com)
-- **Production**: Producción (example.com)
+- **Local**: Desarrollo con Docker Compose
+  - `docker-compose up -d`
+  - Base de datos MySQL/PostgreSQL local
+  - PHP 8.1+
+  - Nginx
 
-### CI/CD Pipeline
+### Instalación Local
 
-1. **On Push** (cualquier branch):
-   - Run linters
-   - Run tests
-   - Build (verificar que compila)
+```bash
+# 1. Clonar repositorio
+git clone <repo-url>
+cd sportian
 
-2. **On Merge to `develop`**:
-   - Run tests
-   - Build
-   - Deploy to Staging
+# 2. Copiar .env y configurar
+cp backend/.env.example backend/.env
 
-3. **On Merge to `main`**:
-   - Run tests
-   - Build
-   - Deploy to Production
-   - Tag release
+# 3. Iniciar Docker
+docker-compose up -d
 
----
+# 4. Instalar dependencias
+docker-compose exec php composer install
 
-## 📦 Dependencies
+# 5. Crear base de datos y ejecutar migraciones
+docker-compose exec php bin/console doctrine:database:create
+docker-compose exec php bin/console doctrine:migrations:migrate -n
 
-### Backend (Composer)
+# 6. Cargar fixtures (datos de prueba)
+docker-compose exec php bin/console doctrine:fixtures:load -n
 
-**Producción**:
-- symfony/framework-bundle
-- doctrine/orm
-- lexik/jwt-authentication-bundle
-- nelmio/cors-bundle
+# 7. Verificar
+curl http://localhost:8080/api/clubs
+```
 
-**Desarrollo**:
-- phpunit/phpunit
-- symfony/maker-bundle
-- symfony/profiler-pack
+### CI/CD (No aplica para prueba técnica)
 
-**NO uses**:
-- Dependencias obsoletas
-- Paquetes sin mantenimiento (> 2 años sin actualizar)
-
-### Frontend (NPM)
-
-**Producción**:
-- react
-- react-dom
-- react-router-dom
-- axios o react-query
-- Material-UI (frontend1) o Tailwind (frontend2)
-
-**Desarrollo**:
-- typescript
-- vite
-- @testing-library/react
-- jest
-- eslint + prettier
-
-**NO uses**:
-- Librerías pesadas innecesarias (bundle size importa)
-- Paquetes sin types para TypeScript
+Esta prueba técnica se enfoca en desarrollo local. No se requiere pipeline CI/CD.
 
 ---
 
-## 🔄 Workflow Específico del Proyecto
+## 📦 Dependencies (Ya especificadas arriba)
 
-### Feature Development
+Ver sección "Stack Técnico Específico" para lista completa de dependencias.
 
-1. **Planner** define feature:
-   - Crea `FEATURE_X.md`
-   - Define contratos API
-   - Crea breakdown de tareas
-
-2. **Backend** y **Frontend** trabajan:
-   - Frontend puede **mockear API** si backend no está listo
-   - Ambos actualizan sus respectivos `50_state.md`
-
-3. **Integration**:
-   - Frontend reemplaza mocks con API real
-   - Tests de integración
-
-4. **QA** revisa y aprueba
-
-5. **Deploy** a staging, luego producción
-
-### Hotfix Process
-
-1. Branch desde `main`: `hotfix/fix-critical-bug`
-2. Fix + tests
-3. Review rápido (QA)
-4. Merge a `main` y `develop`
-5. Deploy inmediato a producción
+**Prohibiciones críticas**:
+- ❌ **API Platform** (implementación manual requerida)
+- ❌ Bundles que generen CRUD automático
+- ❌ Dependencias obsoletas sin mantenimiento
 
 ---
 
-## 📊 Monitoring y Logs
+## 🔄 Workflow Específico del Proyecto (Sportian)
+
+### Feature Development (task-breakdown workflow)
+
+**Usando workflow task-breakdown para Sportian**:
+
+1. **Planner** (Fase de Planning exhaustivo):
+   - **00_requirements_analysis.md** - Análisis de requisitos completo
+   - **10_architecture.md** - Diseño DDD (Domain, Application, Infrastructure)
+   - **15_data_model.md** - Modelo de datos detallado
+   - **20_api_contracts.md** - TODOS los endpoints documentados
+   - **30_tasks_backend.md** - Tareas MUY detalladas para Backend
+   - **32_tasks_qa.md** - Tareas detalladas para QA
+   - Actualiza `50_state.md` → `COMPLETED`
+
+2. **Backend** implementa:
+   - Lee toda la documentación del Planner
+   - Implementa según DDD (Domain → Application → Infrastructure)
+   - Checkpoints frecuentes con commits
+   - Actualiza `50_state.md` con progreso
+   - Ejecuta tests unitarios mientras desarrolla
+
+3. **QA** revisa:
+   - Lee documentación del Planner
+   - Lee código del Backend
+   - Ejecuta tests
+   - Prueba API con Postman/curl
+   - Valida reglas de negocio
+   - Decision: `APPROVED` o `REJECTED` en `50_state.md`
+
+4. **Merge** cuando QA aprueba
+
+### Git Workflow
+
+- Branch de feature: `feature/sportian-club-management`
+- Commits frecuentes con prefijos:
+  - `[backend][sportian-club-management] Add Club entity`
+  - `[backend][sportian-club-management] Implement AssignPlayerToClub use case`
+  - `[qa][sportian-club-management] QA Review: APPROVED`
+
+---
+
+## 📊 Logging (Sportian)
 
 ### Backend Logging
 
-- **Level**: INFO en producción, DEBUG en staging
-- **Format**: JSON
-- **Fields**: timestamp, level, message, context, trace_id
-- **Storage**: [Define dónde: CloudWatch, ELK, etc.]
+- **Level**: DEBUG en desarrollo
+- **Tool**: Monolog (incluido en Symfony)
+- **Log crítico**:
+  - Errores de validación de reglas de negocio
+  - Fallos al enviar notificaciones
+  - Excepciones no controladas
+- **Location**: `backend/var/log/dev.log`
 
-### Frontend Error Tracking
-
-- **Tool**: Sentry (o similar)
-- **Events**: Errores no capturados, llamadas API fallidas
-- **User context**: User ID (si está autenticado)
-
----
-
-## 🎯 Performance Targets
-
-### Backend
-
-- **Response time**: < 200ms (p95)
-- **Database queries**: < 50ms (p95)
-- **Memory usage**: < 256MB por request
-
-### Frontend
-
-- **Initial Load**: < 3s (3G network)
-- **Time to Interactive**: < 5s
-- **Bundle size**: < 500KB (gzipped)
-- **Lighthouse score**: > 90
+**No aplica**: Monitoring de producción (prueba técnica local)
 
 ---
 
-## 📝 Documentation
+## 📝 Documentation (Sportian)
 
-### Backend
+### README.md (Obligatorio)
 
-- **API Docs**: OpenAPI/Swagger en `/api/doc`
-- **PHPDoc**: Todos los métodos públicos
+Debe incluir:
+1. Descripción del proyecto
+2. Requisitos previos (Docker, Docker Compose)
+3. Instalación paso a paso
+4. Comandos para cargar fixtures
+5. Comandos para ejecutar tests
+6. Estructura del proyecto (árbol de directorios)
+7. Ejemplos de uso de la API (curl o referencia a Postman)
 
-### Frontend
+### API Documentation (Valorado)
 
-- **Storybook**: Componentes documentados (frontend1)
-- **JSDoc**: Utilidades y hooks complejos
+- ✅ **Colección Postman** con ejemplos de todas las operaciones
+- ✅ (Opcional) OpenAPI/Swagger spec
+
+### Code Documentation
+
+- ✅ PHPDoc en clases de dominio complejas
+- ✅ Comentarios en lógica de negocio no trivial
+- ✅ No sobre-documentar código obvio
 
 ---
 
-## ✅ Definition of Done (PROJECT_X)
+## ✅ Definition of Done (Sportian)
 
-Un feature está listo cuando:
+El proyecto Sportian está completo cuando:
 
-- ✅ Backend implementado según DDD
-- ✅ Frontend(s) implementados y responsive
-- ✅ Tests escritos y pasando (backend > 80%, frontend > 70%)
-- ✅ API docs actualizados (Swagger)
-- ✅ QA aprobó (`APPROVED` en `50_state.md`)
-- ✅ Code review hecho
-- ✅ Deployed a staging
-- ✅ Planner da visto bueno final
-- ✅ Performance targets cumplidos
+### Funcional
+- ✅ **Todas las operaciones de API implementadas y funcionando**
+  - POST /api/players, POST /api/coaches, POST /api/clubs
+  - Asociar/desasociar jugadores y entrenadores a clubes
+  - Modificar presupuesto de club
+  - Listar jugadores con filtros y paginación
+- ✅ **Todas las reglas de negocio validadas correctamente**
+  - RN-1: Suma de salarios no supera presupuesto
+  - RN-2: Presupuesto no se reduce por debajo de salarios actuales
+  - RN-3: Exclusividad de club
+  - RN-4: Notificaciones enviadas
+- ✅ **Sistema de notificaciones extensible implementado**
+  - EmailNotificationChannel funcionando
+  - Interface para agregar futuros canales (SMS, WhatsApp)
+
+### Técnico
+- ✅ **Arquitectura DDD implementada correctamente**
+  - Domain / Application / Infrastructure separados
+  - Entities, Value Objects, Use Cases, Repositories
+- ✅ **Tests escritos y pasando** (mínimo 70% coverage)
+  - Unit tests de use cases, entities, VOs
+  - Integration tests de repositories
+  - Functional tests de endpoints
+- ✅ **Docker configurado y funcionando**
+  - `docker-compose up -d` funciona
+  - Aplicación accesible en `http://localhost:8080`
+- ✅ **Fixtures cargados**
+  - 3 clubes, 15 jugadores, 5 entrenadores
+  - Datos de prueba realistas
+- ✅ **README.md completo**
+  - Instrucciones de instalación claras
+  - Comandos de uso documentados
+  - Estructura del proyecto explicada
+- ✅ **Colección Postman incluida** (valorado positivamente)
+- ✅ **Código limpio y bien estructurado**
+  - PSR-12 seguido
+  - Sin warnings de PHPStan
+  - Código autoexplicativo
+
+### QA
+- ✅ **QA aprobó** (`APPROVED` en `50_state.md`)
+- ✅ Todas las operaciones probadas manualmente
+- ✅ Reglas de negocio validadas
+- ✅ Tests ejecutados exitosamente
+
+### Documentación
+- ✅ **Dump de base de datos** con datos de prueba incluido
+- ✅ Comentarios en código donde sea necesario
+- ✅ API documentada (Postman o README)
 
 ---
 
 **Última actualización**: 2026-01-15
-**Actualizado por**: Planner
-**Próxima revisión**: Cuando sea necesario (cambios en stack o arquitectura)
+**Actualizado por**: Sistema (preparación inicial Sportian)
+**Próxima revisión**: Después del planning del Planner
